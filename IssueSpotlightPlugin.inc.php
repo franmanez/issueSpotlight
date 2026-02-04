@@ -39,8 +39,14 @@ class IssueSpotlightPlugin extends GenericPlugin {
 				// Workaround for BackIssueGridHandler which overrides initFeatures without calling parent
 				HookRegistry::register('TemplateManager::fetch', array($this, 'handleTemplateFetch'));
 				
-				// Hook crítico para cargar nuestro controlador personalizado
+				// Hook crítico para cargar nuestro controlador personalizado del Backend
 				HookRegistry::register('LoadComponentHandler', array($this, 'handleLoadComponentHandler'));
+
+				// Hook para el Frontend (Página pública)
+				HookRegistry::register('LoadHandler', array($this, 'handleLoadHandler'));
+				
+				// Hook para inyectar botón en la vista del número
+				HookRegistry::register('TemplateManager::display', array($this, 'handleTemplateDisplay'));
 			}
 			return true;
 		}
@@ -159,6 +165,62 @@ class IssueSpotlightPlugin extends GenericPlugin {
 			// Autorizamos la carga de esta clase específica
 			import($component);
 			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * @desc Handle Frontend Page Routing
+	 */
+	public function handleLoadHandler($hookName, $args) {
+		$page = $args[0];
+		$op = $args[1];
+		$sourceFile = $args[2];
+
+		if ($page === 'issueSpotlight') {
+			$this->import('pages.IssueSpotlightHandler');
+			define('HANDLER_CLASS', 'IssueSpotlightHandler');
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * @desc Inject "View AI Analysis" button into Issue TOC
+	 */
+	public function handleTemplateDisplay($hookName, $args) {
+		$templateMgr = $args[0];
+		$template = $args[1];
+
+		if ($template == 'frontend/pages/issue.tpl') {
+			$issue = $templateMgr->get_template_vars('issue');
+			if ($issue) {
+				// Comprobamos si hay análisis para este número
+				$dao = new DAO();
+				$result = $dao->retrieve('SELECT count(*) as c FROM issue_ai_analysis WHERE issue_id = ?', [(int)$issue->getId()]);
+				$row = (object) $result->current();
+
+				if ($row && isset($row->c) && $row->c > 0) {
+					// Preparamos el HTML del botón
+					$request = Application::get()->getRequest();
+					$url = $request->url(null, 'issueSpotlight', 'view', $issue->getId());
+					$btnHtml = '<div class="issue_spotlight_promo" style="margin: 20px 0; text-align: center;"><a href="' . $url . '" class="pkp_button pkp_button_primary" style="background:#2c832c; border-color:#2c832c; color:white;"> ✨ Ver Análisis de Inteligencia Artificial</a></div>';
+					
+					// Registramos un Output Filter para inyectar el HTML
+					$templateMgr->registerFilter('output', function($output, $smarty) use ($btnHtml) {
+						// Buscamos el final de la descripción o, si no hay, del encabezado
+						if (strpos($output, 'class="description"') !== false) {
+							// Inyectar después del cierre del div description
+							return preg_replace('/(<div class="description">.*?<\/div>)/s', '$1' . $btnHtml, $output, 1);
+						} elseif (strpos($output, 'class="heading"') !== false) {
+							// Fallback: Inyectar al final del heading
+							return str_replace('</div>', $btnHtml . '</div>', $output); // Riesgoso si hay muchos divs, mejor ser específico
+						}
+						// Último recurso: inyectar antes de la lista de secciones
+						return str_replace('<div class="sections">', $btnHtml . '<div class="sections">', $output);
+					});
+				}
+			}
 		}
 		return false;
 	}
