@@ -1,0 +1,48 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-04T12:00:00+00:00\n"
+"PO-Revision-Date: 2026-02-04T12:00:00+00:00\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "plugins.generic.issueSpotlight.displayName"
+msgstr "IssueSpotlight IA"
+
+msgid "plugins.generic.issueSpotlight.analysisTitle"
+msgstr "Espacio de Análisis IA"
+
+msgid "plugins.generic.issueSpotlight.description"
+msgstr "Análisis de números mediante IA para generar borradores editoriales, radares de innovación y sugerencias de expertos."
+
+msgid "plugins.generic.issueSpotlight.settings"
+msgstr "Configuración"
+
+msgid "plugins.generic.issueSpotlight.settings.apiKey"
+msgstr "Clave API de Gemini"
+
+msgid "plugins.generic.issueSpotlight.settings.apiKeyDescription"
+msgstr "Introduce tu clave API de Google Gemini (se recomienda Gemini 2.0 Flash Lite)."
+
+msgid "plugins.generic.issueSpotlight.settings.apiKeyRequired"
+msgstr "La clave API es obligatoria."
+
+msgid "plugins.generic.issueSpotlight.analysisLoading"
+msgstr "Listo para analizar el número."
+
+msgid "plugins.generic.issueSpotlight.startAnalysis"
+msgstr "Iniciar análisis con IA"
+
+msgid "plugins.generic.issueSpotlight.analyzing"
+msgstr "Analizando"
+
+msgid "plugins.generic.issueSpotlight.noArticles"
+msgstr "No se han encontrado artículos en este número."
+
+msgid "plugins.generic.issueSpotlight.errorAnalysis"
+msgstr "Se ha producido un error al llamar al servicio de IA. Comprueba tu clave API."

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE schema SYSTEM "../../../lib/pkp/dtd/schema.dtd">
+<schema version="0.2">
+	<table name="issue_ai_analysis">
+		<field name="issue_id" type="I8">
+			<NOTNULL/>
+		</field>
+		<field name="editorial_draft" type="X"/>
+		<field name="thematic_clusters" type="X"/>
+		<field name="expert_suggestions" type="X"/>
+		<field name="global_seo_description" type="X"/>
+		<field name="tokens_consumed" type="I4"/>
+		<field name="date_generated" type="T"/>
+		<descr>AI-generated analysis for magazine issues.</descr>
+		<index name="issue_ai_analysis_issue_id">
+			<col>issue_id</col>
+			<unique/>
+		</index>
+	</table>
+</schema>

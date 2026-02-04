@@ -1,0 +1,45 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-04T12:00:00+00:00\n"
+"PO-Revision-Date: 2026-02-04T12:00:00+00:00\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ca_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "plugins.generic.issueSpotlight.displayName"
+msgstr "IssueSpotlight IA"
+
+msgid "plugins.generic.issueSpotlight.description"
+msgstr "Anàlisi de números mitjançant IA per generar esborranys editorials, radars d'innovació i suggeriments d'experts."
+
+msgid "plugins.generic.issueSpotlight.settings"
+msgstr "Configuració"
+
+msgid "plugins.generic.issueSpotlight.settings.apiKey"
+msgstr "Clau API de Gemini"
+
+msgid "plugins.generic.issueSpotlight.settings.apiKeyDescription"
+msgstr "Introdueix la teva clau API de Google Gemini (es recomana Gemini 2.0 Flash Lite)."
+
+msgid "plugins.generic.issueSpotlight.settings.apiKeyRequired"
+msgstr "La clau API és obligatòria."
+
+msgid "plugins.generic.issueSpotlight.analysisLoading"
+msgstr "Llest per analitzar el número."
+
+msgid "plugins.generic.issueSpotlight.startAnalysis"
+msgstr "Iniciar l'anàlisi amb IA"
+
+msgid "plugins.generic.issueSpotlight.analyzing"
+msgstr "Analitzant"
+
+msgid "plugins.generic.issueSpotlight.noArticles"
+msgstr "No s'han trobat articles en aquest número."
+
+msgid "plugins.generic.issueSpotlight.errorAnalysis"
+msgstr "S'ha produït un error en trucar al servei d'IA. Comprova la teva clau API."
