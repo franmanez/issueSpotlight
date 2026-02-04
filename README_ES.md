@@ -68,3 +68,18 @@ CREATE TABLE issue_ai_analysis (
 
 ---
 *Nota: Si la tabla de base de datos no aparece tras activar, utiliza la opción "Actualizar" del plugin en la galería de OJS.*
+
+## Detalles de Implementación v1.0
+
+El plugin cuenta actualmente con un flujo de trabajo totalmente integrado con Google Gemini, diseñado para ofrecer estabilidad y feedback claro:
+
+*   **Interfaz de Doble Botón**:
+    *   **Test DB (Dummy)**: Un botón de diagnóstico que simula el proceso. Selecciona un título real aleatorio del número y genera datos falsos ("Lorem Ipsum") para verificar los permisos de escritura en la base de datos sin consumir cuota de la API.
+    *   **Análisis REAL (Gemini)**: El botón azul principal que activa el procesamiento real de la IA.
+*   **Preparación de Datos**: Antes de llamar a la IA, el plugin agrega eficientemente todos los títulos y resúmenes de los envíos del número en un único payload de texto.
+*   **Integración con Gemini**: Se conecta al modelo `gemini-2.0-flash-lite` utilizando la API Key almacenada de forma segura en `PluginSettingsDAO`.
+*   **Flujo de Triple Análisis**:
+    1.  **Radar**: Extrae entre 5 y 10 temas clave específicos y los clasifica (Novedoso, En auge, Estable) en un formato JSON limpio.
+    2.  **Editorial**: Genera un borrador HTML profesional actuando como Editor Jefe, entrelazando los artículos seleccionados en una narrativa coherente.
+    3.  **Expertos**: Sugiere posibles revisores basándose en el contenido semántico del número.
+*   **Persistencia**: Todos los datos generados (JSON del Radar, HTML del Editorial, HTML de Expertos) se almacenan en la tabla `issue_ai_analysis` mediante lógica UPSERT (Insertar o Actualizar), asegurando que el último análisis esté siempre disponible.

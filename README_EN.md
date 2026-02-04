@@ -68,3 +68,18 @@ CREATE TABLE issue_ai_analysis (
 
 ---
 *Note: If the database table is not created after activation, use the "Upgrade" option for the plugin in the OJS gallery.*
+
+## Implementation Details v1.0
+
+The plugin currently features a fully integrated workflow with Google Gemini, designed for stability and clear feedback:
+
+*   **Dual-Button Interface**:
+    *   **Test DB (Dummy)**: A diagnostic button that simulates the process. It picks a random real title from the issue and generates fake "Loren Ipsum" data to verify database write permissions without consuming API quotas.
+    *   **REAL Analysis (Gemini)**: The main blue button that triggers the actual AI processing.
+*   **Data Preparation**: Before calling the AI, the plugin efficiently aggregates all titles and abstracts from the issue's submissions into a single text payload.
+*   **Gemini Integration**: Connects to the `gemini-2.0-flash-lite` model using the API Key stored securely in the `PluginSettingsDAO`.
+*   **Triple Analysis Workflow**:
+    1.  **Radar**: Extracts 5-10 key specific themes and classifies them (Novel, Booming, Stable) into a clean JSON format.
+    2.  **Editorial**: Generates a professional HTML draft acting as an Editor-in-Chief, weaving the selected articles into a coherent narrative.
+    3.  **Experts**: Suggests potential reviewers based on the semantic content of the issue.
+*   **Persistence**: All generated data (Radar JSON, Editorial HTML, Experts HTML) is stored in the `issue_ai_analysis` table via UPSERT (Insert or Update) logic, ensuring the latest analysis is always available.
