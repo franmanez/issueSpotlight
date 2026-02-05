@@ -188,41 +188,65 @@ class IssueSpotlightPlugin extends GenericPlugin {
 	/**
 	 * @desc Inject "View AI Analysis" button into Issue TOC
 	 */
+	/**
+	 * @desc Inject "View AI Analysis" button into Issue TOC using specific hooks
+	 */
 	public function handleTemplateDisplay($hookName, $args) {
 		$templateMgr = $args[0];
 		$template = $args[1];
 
-		if ($template == 'frontend/pages/issue.tpl') {
-			$issue = $templateMgr->get_template_vars('issue');
-			if ($issue) {
-				// Comprobamos si hay análisis para este número
-				$dao = new DAO();
-				$result = $dao->retrieve('SELECT count(*) as c FROM issue_ai_analysis WHERE issue_id = ?', [(int)$issue->getId()]);
-				$row = (object) $result->current();
+		// Registramos el filtro solo si estamos en la vista del número
+		if ($template == 'frontend/pages/issue.tpl' || $template == 'frontend/objects/issue_toc.tpl') {
+			$templateMgr->registerFilter('output', array($this, 'safeOutputFilter'));
+		}
+		return false;
+	}
 
-				if ($row && isset($row->c) && $row->c > 0) {
-					// Preparamos el HTML del botón
-					$request = Application::get()->getRequest();
-					$url = $request->url(null, 'issueSpotlight', 'view', $issue->getId());
-					$btnHtml = '<div class="issue_spotlight_promo" style="float: right; margin: 10px 0 20px 20px; clear: right;"><a href="' . $url . '" class="pkp_button" style="background: linear-gradient(135deg, #004e92 0%, #000428 100%); color: white; border: none; padding: 10px 20px; border-radius: 4px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); font-weight: bold; text-decoration: none;"> ✨ IssueSpotlight: Ver análisis de IA</a></div>';
-					
-					// Registramos un Output Filter para inyectar el HTML
-					$templateMgr->registerFilter('output', function($output, $smarty) use ($btnHtml) {
-						// Buscamos el final de la descripción o, si no hay, del encabezado
-						if (strpos($output, 'class="description"') !== false) {
-							// Inyectar después del cierre del div description
-							return preg_replace('/(<div class="description">.*?<\/div>)/s', '$1' . $btnHtml, $output, 1);
-						} elseif (strpos($output, 'class="heading"') !== false) {
-							// Fallback: Inyectar al final del heading
-							return str_replace('</div>', $btnHtml . '</div>', $output); // Riesgoso si hay muchos divs, mejor ser específico
-						}
-						// Último recurso: inyectar antes de la lista de secciones
-						return str_replace('<div class="sections">', $btnHtml . '<div class="sections">', $output);
-					});
+	/**
+	 * @desc Filtro de salida seguro para inyectar el botón sin duplicados
+	 */
+	public function safeOutputFilter($output, $smarty) {
+		static $locked = false;
+		if ($locked) return $output;
+
+		// Solo procesar si hay rastros del TOC o de la página del número
+		if (strpos($output, 'obj_issue_toc') !== false || strpos($output, 'page_issue') !== false) {
+			$issue = $smarty->get_template_vars('issue');
+			if (!$issue) return $output;
+
+			// Comprobar si hay análisis
+			$dao = new DAO();
+			$result = $dao->retrieve('SELECT count(*) as c FROM issue_ai_analysis WHERE issue_id = ?', [(int)$issue->getId()]);
+			$row = (object) $result->current();
+
+			if ($row && isset($row->c) && $row->c > 0) {
+				$request = Application::get()->getRequest();
+				$url = $request->url(null, 'issueSpotlight', 'view', $issue->getId());
+				
+				$btnHtml = '<div class="issue_spotlight_promo" style="float: right; margin: 10px 0 20px 20px; clear: right;">' .
+						   '<a href="' . $url . '" class="pkp_button" style="background: linear-gradient(135deg, #004e92 0%, #000428 100%); color: white; border: none; padding: 10px 20px; border-radius: 4px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); font-weight: bold; text-decoration: none;">' .
+						   ' ✨ IssueSpotlight: Ver análisis de IA</a></div>';
+				
+				// Estrategia de Inyección Multinivel
+				// 1. Después de la descripción (Ideal)
+				if (strpos($output, 'class="description"') !== false) {
+					$output = preg_replace('/(<div class="description">.*?<\/div>)/s', '$1' . $btnHtml, $output, 1);
+					$locked = true;
+				} 
+				// 2. Al inicio del heading (Fallback 1)
+				elseif (strpos($output, 'class="heading"') !== false) {
+					$output = preg_replace('/(<div class="heading">)/', '$1' . $btnHtml, $output, 1);
+					$locked = true;
+				}
+				// 3. Al inicio del contenedor TOC (Fallback 2)
+				elseif (strpos($output, 'class="obj_issue_toc"') !== false) {
+					$output = preg_replace('/(<div class="obj_issue_toc">)/', '$1' . $btnHtml, $output, 1);
+					$locked = true;
 				}
 			}
 		}
-		return false;
+
+		return $output;
 	}
 
 	/**

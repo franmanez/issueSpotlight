@@ -18,7 +18,7 @@ msgid "plugins.generic.issueSpotlight.analysisTitle"
 msgstr "AI Analysis Workspace"
 
 msgid "plugins.generic.issueSpotlight.description"
-msgstr "AI-powered issue analysis to generate editorial drafts, innovation radars, and expert suggestions."
+msgstr "Intelligent issue analysis: automatic editorial draft, strategic maturity/impact matrix, and UN Agenda 2030 alignment visualization."
 
 msgid "plugins.generic.issueSpotlight.settings"
 msgstr "Settings"

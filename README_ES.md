@@ -67,6 +67,11 @@ CREATE TABLE issue_ai_analysis (
     *   Haz clic y selecciona "Iniciar análisis con IA".
 
 ---
+## Notas sobre Cuotas (Gemini Flash Lite 2.5)
+*   **Consumo**: Cada análisis consume **3 peticiones** a la API.
+*   **Límites**: Ten en cuenta que algunas cuentas gratuitas tienen límites diarios estrictos (ej. 20 peticiones/día), permitiendo analizar unos 6 números diarios.
+
+---
 *Nota: Si la tabla de base de datos no aparece tras activar, utiliza la opción "Actualizar" del plugin en la galería de OJS.*
 
 ## Detalles de Implementación v1.0
@@ -81,5 +86,5 @@ El plugin cuenta actualmente con un flujo de trabajo totalmente integrado con Go
 *   **Flujo de Triple Análisis**:
     1.  **Matriz Impacto/Madurez**: Extrae conceptos clave y les asigna puntuaciones (0-100) en Madurez y Impacto para visualizar un mapa estratégico de cuadrantes.
     2.  **Editorial**: Genera un borrador HTML profesional actuando como Editor Jefe, entrelazando los artículos seleccionados en una narrativa coherente.
-    3.  **Impacto ODS**: Devuelve JSON con ODS/Porcentaje/Color para renderizar un Gráfico de Anillo y tarjetas con los iconos oficiales de la ONU.
+    3.  **Impacto ODS**: Devuelve JSON con ODS/Porcentaje/Color y **justificación cualitativa** para renderizar un Gráfico de Anillo y tarjetas con los iconos oficiales de la ONU.
 *   **Persistencia**: Todos los datos generados (JSON del Radar, HTML del Editorial, HTML de Expertos) se almacenan en la tabla `issue_ai_analysis` mediante lógica UPSERT (Insertar o Actualizar), asegurando que el último análisis esté siempre disponible.

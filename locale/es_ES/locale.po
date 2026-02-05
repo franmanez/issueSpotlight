@@ -18,7 +18,7 @@ msgid "plugins.generic.issueSpotlight.analysisTitle"
 msgstr "Espacio de Análisis IA"
 
 msgid "plugins.generic.issueSpotlight.description"
-msgstr "Análisis de números mediante IA para generar borradores editoriales, radares de innovación y sugerencias de expertos."
+msgstr "Análisis inteligente de números: borrador editorial automático, matriz estratégica de madurez/impacto y visualización de alineación con la Agenda 2030."
 
 msgid "plugins.generic.issueSpotlight.settings"
 msgstr "Configuración"

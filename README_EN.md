@@ -4,9 +4,9 @@ This plugin enables OJS 3.3 editors to gain a comprehensive global overview of a
 
 ## Core Functionalities
 
-1.  **Innovation Radar**: Analyzes all articles in the issue to generate a thematic analysis grouped by relevance and status (Novel, Rising, Stable).
+1.  **Innovation Matrix**: Generates a scatter plot positioning the issue's topics based on Academic Maturity and Potential Impact, helping to identify future stakes and classics.
 2.  **Editorial Synthesizer**: Drafts an editorial proposal that identifies common threads and trends among the works in the issue.
-3.  **Expert Identifier**: Suggests a list of potential expert reviewers based on the quality and topics of the authors published in the issue.
+3.  **SDG Impact**: Calculates and visualizes (Donut Chart + Official Icons) the percentage contribution of the issue to the UN Sustainable Development Goals.
 
 ## Created File Structure
 
@@ -25,9 +25,9 @@ This plugin enables OJS 3.3 editors to gain a comprehensive global overview of a
 The plugin follows an automated process to generate results using the **gemini-2.0-flash-lite** model:
 1. **Data Extraction**: Dynamically retrieves titles and abstracts from all issue articles.
 2. **Specialized Prompts**: Three parallel requests are executed with precise instructions:
-   - **Radar**: Prompts designed to return pure JSON with normalized tags and counts.
+   - **Innovation Matrix**: Asks the AI to evaluate each concept on two axes (Maturity and Impact) returning JSON for a scatter plot.
    - **Editorial**: Role-based instruction as "Editor-in-Chief" to generate structured HTML content.
-   - **Experts**: Semantic analysis of the issue's authors for peer-review suggestions.
+   - **SDG**:  Alignment analysis with the Sustainable Development Goals (2030 Agenda).
 3. **Persistence**: Results are saved in the database, optimizing token consumption and response time for subsequent visits.
 
 ## API Key Storage
@@ -67,6 +67,11 @@ CREATE TABLE issue_ai_analysis (
     *   Click it and select "Start AI Analysis".
 
 ---
+## Notes on Quotas (Gemini Flash Lite 2.5)
+*   **Consumption**: Each full analysis performs **3 requests** to the API.
+*   **Limits**: Be aware that some free accounts have strict daily limits (e.g., 20 requests/day), allowing you to fully analyze about 6 issues per day.
+
+---
 *Note: If the database table is not created after activation, use the "Upgrade" option for the plugin in the OJS gallery.*
 
 ## Implementation Details v1.0
@@ -79,7 +84,7 @@ The plugin currently features a fully integrated workflow with Google Gemini, de
 *   **Data Preparation**: Before calling the AI, the plugin efficiently aggregates all titles and abstracts from the issue's submissions into a single text payload.
 *   **Gemini Integration**: Connects to the `gemini-2.0-flash-lite` model using the API Key stored securely in the `PluginSettingsDAO`.
 *   **Triple Analysis Workflow**:
-    1.  **Radar**: Extracts 5-10 key specific themes and classifies them (Novel, Booming, Stable) into a clean JSON format.
+    1.  **Innovation Matrix**: Extracts key concepts and assigns scores (0-100) for Maturity and Impact to visualize a strategic quadrant map.
     2.  **Editorial**: Generates a professional HTML draft acting as an Editor-in-Chief, weaving the selected articles into a coherent narrative.
-    3.  **Experts**: Suggests potential reviewers based on the semantic content of the issue.
-*   **Persistence**: All generated data (Radar JSON, Editorial HTML, Experts HTML) is stored in the `issue_ai_analysis` table via UPSERT (Insert or Update) logic, ensuring the latest analysis is always available.
+    3.  **SDG Impact**: Returns JSON with SDG/Percentage/Color and **qualitative reasoning** to render a Donut Chart and cards with official UN icons.
+*   **Persistence**: All generated data (Matrix JSON, Editorial HTML, SDG JSON) is stored in the `issue_ai_analysis` table via UPSERT (Insert or Update) logic, ensuring the latest analysis is always available.
