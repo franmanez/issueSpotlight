@@ -4,9 +4,9 @@ Este plugin permite a los editores de OJS 3.3 obtener una visión global de un n
 
 ## Funcionalidades Principales
 
-1.  **Radar de Innovación**: Analiza todos los artículos del número y genera un gráfico de burbujas (simulado en el listado) con las temáticas agrupadas por relevancia y estado (Novedoso, En auge, Estable).
+1.  **Matriz de Innovación**: Genera un gráfico de dispersión (Scatter Plot) posicionando los temas del número según su Madurez Académica e Impacto Potencial, ayudando a identificar apuestas de futuro y clásicos.
 2.  **Sintetizador Editorial**: Redacta un borrador de editorial que identifica hilos conductores y tendencias comunes entre los trabajos del número.
-3.  **Identificador de Expertos**: Sugiere una lista de posibles revisores expertos basados en la calidad y temática de los autores que han publicado en el número.
+3.  **Impacto ODS**: Calcula y visualiza (Gráfico Donut + Iconos Oficiales) el porcentaje de contribución del número a los Objetivos de Desarrollo Sostenible de la ONU.
 
 ## Estructura de Archivos Creados
 
@@ -25,9 +25,9 @@ Este plugin permite a los editores de OJS 3.3 obtener una visión global de un n
 El plugin sigue un proceso automatizado para generar los resultados utilizando el modelo **gemini-2.0-flash-lite**:
 1. **Extracción de Datos**: Recupera dinámicamente títulos y resúmenes de todos los artículos del número.
 2. **Prompts Especializados**: Se ejecutan tres peticiones paralelas con instrucciones precisas:
-   - **Radar**: Prompts diseñados para devolver JSON puro con etiquetas normalizadas y conteos.
+   - **Matriz de Innovación**: Pide a la IA evaluar cada concepto en dos ejes (Madurez e Impacto) devolviendo JSON para un scatter plot.
    - **Editorial**: Instrucción de rol como "Editor Jefe" para generar contenido HTML estructurado.
-   - **Expertos**: Análisis semántico de los autores del número para sugerencias de revisión por pares.
+   - **ODS**: Análisis de alineación con los Objetivos de Desarrollo Sostenible (Agenda 2030).
 3. **Persistencia**: Los resultados se guardan en la base de datos, optimizando el consumo de tokens y el tiempo de respuesta en visitas posteriores.
 
 ## Almacenamiento de la Clave API
@@ -79,7 +79,7 @@ El plugin cuenta actualmente con un flujo de trabajo totalmente integrado con Go
 *   **Preparación de Datos**: Antes de llamar a la IA, el plugin agrega eficientemente todos los títulos y resúmenes de los envíos del número en un único payload de texto.
 *   **Integración con Gemini**: Se conecta al modelo `gemini-2.0-flash-lite` utilizando la API Key almacenada de forma segura en `PluginSettingsDAO`.
 *   **Flujo de Triple Análisis**:
-    1.  **Radar**: Extrae entre 5 y 10 temas clave específicos y los clasifica (Novedoso, En auge, Estable) en un formato JSON limpio.
+    1.  **Matriz Impacto/Madurez**: Extrae conceptos clave y les asigna puntuaciones (0-100) en Madurez y Impacto para visualizar un mapa estratégico de cuadrantes.
     2.  **Editorial**: Genera un borrador HTML profesional actuando como Editor Jefe, entrelazando los artículos seleccionados en una narrativa coherente.
-    3.  **Expertos**: Sugiere posibles revisores basándose en el contenido semántico del número.
+    3.  **Impacto ODS**: Devuelve JSON con ODS/Porcentaje/Color para renderizar un Gráfico de Anillo y tarjetas con los iconos oficiales de la ONU.
 *   **Persistencia**: Todos los datos generados (JSON del Radar, HTML del Editorial, HTML de Expertos) se almacenan en la tabla `issue_ai_analysis` mediante lógica UPSERT (Insertar o Actualizar), asegurando que el último análisis esté siempre disponible.

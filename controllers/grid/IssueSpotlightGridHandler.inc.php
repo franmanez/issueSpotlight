@@ -175,23 +175,62 @@ class IssueSpotlightGridHandler extends GridHandler {
 		}
 
 		// 3. Llamadas a Gemini (Secuenciales)
-		// Prompt Radar
-		$radarJson = $this->_callGemini($apiKey, "Analiza estos trabajos. Extrae 5-10 temas clave. Clasifica cada uno como 'Novedoso', 'En auge' o 'Estable'. Devuelve SOLO un array JSON válido: [{\"tag\":\"nombre\",\"count\":X,\"status\":\"tipo\"}]. No uses Markdown.", $payload);
-		// Limpieza básica de JSON si Gemini añade ```json ... ```
-		$radarJson = str_replace(['```json', '```'], '', $radarJson);
+		// Prompt 2: Matriz de Innovación (Impacto vs Madurez)
+		$promptRadar = "Analiza los títulos y resúmenes proporcionados extrae los 10 conceptos o metodologías más relevantes.
+		Para cada concepto, asígnale dos puntuaciones del 0 al 100 y una categoría breve:
+		1. 'maturity': Grado de consolidación académica (0=Emergente/Nuevo, 100=Clásico/Consolidado).
+		2. 'impact': Potencial de impacto actual o interés transversal (0=Nicho específico, 100=Alto interés general).
+		Devuelve SOLAMENTE un JSON array válido con este formato:
+		[{\"concept\": \"Concepto A\", \"maturity\": 20, \"impact\": 90, \"category\": \"Tecnología\"}, ...]";
 
+		$radarContent = $this->_callGemini($apiKey, $promptRadar, $payload);
+		
 		// Prompt Editorial
 		$editorialHtml = $this->_callGemini($apiKey, "Actúa como Editor Jefe. Escribe una editorial corta (max 200 palabras) en HTML (usando <p>, <h3>, <ul>). Agrupa los artículos por temáticas comunes y destaca tendencias. Sé profesional y académico.", $payload);
 		
-		// Prompt Expertos
-		$expertsHtml = $this->_callGemini($apiKey, "Basándote en los temas de estos artículos, sugiere 5 perfiles de expertos ideales para revisarlos. Devuelve una lista HTML <ul> con los perfiles.", $payload);
+		// Prompt ODS (Objetivos de Desarrollo Sostenible)
+		$promptODS = "Analiza el contenido de los artículos y determina su contribución a los Objetivos de Desarrollo Sostenible (ODS) de la ONU.
+		Distribuye un total de 100% entre los ODS más relevantes (mínimo 3, máximo 6).
+		Devuelve SOLAMENTE un JSON array válido con este formato:
+		[{\"ods\": 4, \"name\": \"Educación de Calidad\", \"percentage\": 30, \"color\": \"#C5192D\", \"reasoning\": \"Breve justificación de 1 frase explicando por qué aplica (menciona temas clave)\"}, ...]";
 
-		if (!$radarJson || !$editorialHtml || !$expertsHtml) {
-			return new JSONMessage(false, "Fallo en la comunicación con Gemini. Verifica tu cuota o conexión.");
+		$odsContent = $this->_callGemini($apiKey, $promptODS, $payload);
+
+		// Validación de errores detallada
+		$errors = [];
+		if (strpos($editorialHtml, 'ERROR:') !== false) $errors[] = "Editorial: $editorialHtml";
+		// ODS Content Check
+		if (strpos($odsContent, 'ERROR:') !== false) {
+			$errors[] = "ODS Error: $odsContent"; 
+		} else {
+			// Clean and decode ODS JSON
+			$odsContent = preg_replace('/```json|```/', '', $odsContent);
+			$odsJson = json_decode($odsContent, true);
+			if (!$odsJson) $odsJson = [];
+		}
+		
+		if (!empty($errors)) {
+			return new JSONMessage(false, implode('<br>', $errors));
+		}
+
+		if (strpos($radarContent, 'ERROR:') !== false) {
+			// Fallback si el radar falla
+			$radarJson = [];
+			error_log("IssueSpotlight Warning: Radar failed with " . $radarContent);
+		} else {
+			// Intentar limpiar json
+			$radarContent = preg_replace('/```json|```/', '', $radarContent);
+			$radarJson = json_decode($radarContent, true);
+			if (!$radarJson) {
+				$radarJson = []; 
+				error_log("IssueSpotlight Warning: Radar JSON parse failed.");
+			}
 		}
 
 		// 4. Guardar en Base de Datos
-		$this->_persistAnalysisData($issue->getId(), $editorialHtml, $radarJson, $expertsHtml);
+		// Importante: json_encode convierte el array a string para que SQL no falle
+		// Usamos el campo 'expert_suggestions' para guardar el JSON de ODS (reutilización eficiente)
+		$this->_persistAnalysisData($issue->getId(), $editorialHtml, json_encode($radarJson, JSON_UNESCAPED_UNICODE), json_encode($odsJson, JSON_UNESCAPED_UNICODE));
 
 		return new JSONMessage(true, "<strong>¡Análisis Completado!</strong> Los datos reales de Gemini se han guardado correctamente para el número " . $issue->getIssueIdentification());
 	}
@@ -242,7 +281,7 @@ class IssueSpotlightGridHandler extends GridHandler {
 		
 		$response = curl_exec($ch);
 		
-		if (curl_errno($ch)) return false;
+		if (curl_errno($ch)) return "CURL ERROR: " . curl_error($ch);
 		curl_close($ch);
 
 		$json = json_decode($response, true);
@@ -250,6 +289,10 @@ class IssueSpotlightGridHandler extends GridHandler {
 			return $json['candidates'][0]['content']['parts'][0]['text'];
 		}
 		
-		return false;
+		if (isset($json['error']['message'])) {
+			return "API ERROR: " . $json['error']['message'];
+		}
+		
+		return "UNKNOWN ERROR: Respuesta vacía o malformada.";
 	}
 }

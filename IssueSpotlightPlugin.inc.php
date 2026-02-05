@@ -204,7 +204,7 @@ class IssueSpotlightPlugin extends GenericPlugin {
 					// Preparamos el HTML del botón
 					$request = Application::get()->getRequest();
 					$url = $request->url(null, 'issueSpotlight', 'view', $issue->getId());
-					$btnHtml = '<div class="issue_spotlight_promo" style="margin: 20px 0; text-align: center;"><a href="' . $url . '" class="pkp_button pkp_button_primary" style="background:#2c832c; border-color:#2c832c; color:white;"> ✨ Ver Análisis de Inteligencia Artificial</a></div>';
+					$btnHtml = '<div class="issue_spotlight_promo" style="float: right; margin: 10px 0 20px 20px; clear: right;"><a href="' . $url . '" class="pkp_button" style="background: linear-gradient(135deg, #004e92 0%, #000428 100%); color: white; border: none; padding: 10px 20px; border-radius: 4px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); font-weight: bold; text-decoration: none;"> ✨ IssueSpotlight: Ver análisis de IA</a></div>';
 					
 					// Registramos un Output Filter para inyectar el HTML
 					$templateMgr->registerFilter('output', function($output, $smarty) use ($btnHtml) {
