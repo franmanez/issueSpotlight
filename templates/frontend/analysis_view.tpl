@@ -10,75 +10,189 @@
 	<h1>{translate key="plugins.generic.issueSpotlight.analysisTitle"}: {$issue->getIssueIdentification()}</h1>
 	
 	<div class="description" style="margin-bottom: 30px; border-bottom: 1px solid #ddd; padding-bottom: 20px;">
-		<p>{translate key="plugins.generic.issueSpotlight.description"}</p>
+		<p>{translate key="plugins.generic.issueSpotlight.detailedDescription"}</p>
 	</div>
 
-	{* TAB NAVIGATION *}
-	<ul class="pkp_tabs_list" style="border-bottom: 1px solid #ddd; margin-bottom: 20px; padding: 0;">
-		<li style="display:inline-block; margin-right: 10px;">
-			<a href="#" onclick="switchTab('editorial'); return false;" class="pkp_button pkp_button_primary" id="tab_btn_editorial">Editorial AI</a>
+	{* MODERN TAB NAVIGATION *}
+	<style>
+		.analysis_tabs {
+			display: flex;
+			gap: 12px;
+			margin-bottom: 30px;
+			padding: 0;
+			list-style: none;
+		}
+		.analysis_tab_btn {
+			display: inline-block;
+			padding: 12px 24px;
+			background: #e9ecef;
+			color: #495057;
+			text-decoration: none;
+			border-radius: 10px;
+			font-weight: 600;
+			font-size: 0.95rem;
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			border: 1px solid #dee2e6;
+		}
+		.analysis_tab_btn:hover {
+			background: #dee2e6;
+			color: #006798;
+			transform: translateY(-1px);
+			box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+			text-decoration: none;
+		}
+		.analysis_tab_btn.active {
+			background: #006798;
+			color: #fff;
+			border-color: #006798;
+			box-shadow: 0 4px 15px rgba(0, 103, 152, 0.25);
+		}
+	</style>
+
+	<ul class="analysis_tabs">
+		<li>
+			<a href="#" onclick="switchTab('editorial'); return false;" class="analysis_tab_btn active" id="tab_btn_editorial">Resumen editorial</a>
 		</li>
-		<li style="display:inline-block; margin-right: 10px;">
-			<a href="#" onclick="switchTab('radar'); return false;" class="pkp_button" id="tab_btn_radar">Matriz de Innovación</a>
+		<li>
+			<a href="#" onclick="switchTab('radar'); return false;" class="analysis_tab_btn" id="tab_btn_radar">Radar de Innovación</a>
 		</li>
-		<li style="display:inline-block;">
-			<a href="#" onclick="switchTab('ods'); return false;" class="pkp_button" id="tab_btn_ods">Impacto ODS</a>
+		<li>
+			<a href="#" onclick="switchTab('ods'); return false;" class="analysis_tab_btn" id="tab_btn_ods">Impacto ODS</a>
+		</li>
+		<li>
+			<a href="#" onclick="switchTab('geo'); return false;" class="analysis_tab_btn" id="tab_btn_geo">Mapa Global</a>
 		</li>
 	</ul>
 
 	{* EDITORIAL CONTENT *}
 	<div id="tab_content_editorial" class="analysis_tab_content">
-		<div class="pkp_notification" style="background:#f5faff; border-left:4px solid #006798; padding:15px; margin-bottom:20px;">
-			<strong> Nota:</strong> Este editorial ha sido generado automáticamente por Inteligencia Artificial basándose en los artículos del número.
-		</div>
-		<div class="content_body" style="font-size: 1.1em; line-height: 1.8;">
+        
+        <!-- Title -->
+        <h4 style="
+            color: #006798; 
+            margin-bottom: 20px; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+            border-bottom: 2px solid #eee; 
+            padding-bottom: 10px;
+        ">Resumen editorial</h4>
+
+        <!-- Explanation Box -->
+        <div class="pkp_notification" style="background:#f0f8ff; border: 1px solid #d1e6fa; border-left:4px solid #1E90FF; padding:15px; margin-bottom:20px; border-radius: 4px; font-size: 0.95em; color: #444;">
+            <strong style="color: #004d71;">Generación Automática de Contenidos</strong><br>
+            Este resumen editorial ofrece una panorámica de los temas abordados, elaborada a partir del análisis de los títulos y resúmenes de las contribuciones de este número.
+        </div>
+
+		<div class="content_body" style="font-size: 1.1em; line-height: 1.8; color: #333;">
 			{$editorialDraft|strip_unsafe_html}
 		</div>
 	</div>
 
-	{* RADAR CONTENT (INNOVATION MATRIX) *}
+	{* RADAR CONTENT (INNOVATION RADAR) *}
 	<div id="tab_content_radar" class="analysis_tab_content" style="display:none;">
 		
-		{* MATRIX LEGEND *}
-		<div style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 30px;">
-			<h4 style="margin-top:0;">¿Cómo interpretar esta matriz?</h4>
-			<p style="font-size: 0.9em; color: #555;">
-				Esta visualización posiciona los conceptos clave del número en función de dos dimensiones evaluadas por IA:
-			</p>
-			<ul style="font-size: 0.9em; color: #555; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; list-style: none; padding: 0;">
-				<li style="background: #f9f9f9; padding: 10px; border-radius: 4px;">
-					<strong>Eje X: Madurez Académica</strong><br>
-					Desde temas <em>Emergentes</em> (izquierda) hasta conceptos <em>Consolidados</em> (derecha).
-				</li>
-				<li style="background: #f9f9f9; padding: 10px; border-radius: 4px;">
-					<strong>Eje Y: Impacto Potencial</strong><br>
-					Desde temas de <em>Nicho</em> (abajo) hasta de alto <em>Interés Transversal</em> (arriba).
-				</li>
-			</ul>
-			<div style="margin-top: 15px; font-size: 0.85em; display: flex; gap: 10px; flex-wrap: wrap;">
-				<span style="padding: 2px 8px; background: #e6fffa; color: #2c832c; border: 1px solid #2c832c; border-radius: 10px;">⭐ Apuestas Futuras (Emergente + Impacto)</span>
-				<span style="padding: 2px 8px; background: #f0f9ff; color: #006798; border: 1px solid #006798; border-radius: 10px;">💎 Clásicos de Valor (Consolidado + Impacto)</span>
-			</div>
-		</div>
+        <!-- Title -->
+        <h4 style="
+            color: #006798; 
+            margin-bottom: 20px; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+            border-bottom: 2px solid #eee; 
+            padding-bottom: 10px;
+        ">Radar de Innovación</h4>
+
+        <!-- Explanation Box -->
+        <div class="pkp_notification" style="background:#f0f8ff; border: 1px solid #d1e6fa; border-left:4px solid #1E90FF; padding:15px; margin-bottom:20px; border-radius: 4px; font-size: 0.95em; color: #444;">
+            <strong style="color: #004d71;">¿Cómo interpretar este gráfico?</strong><br>
+            Este radar visualiza los conceptos clave extraídos del número. 
+            El <strong>tamaño</strong> de las burbujas indica el volumen de apariciones. 
+            Los <strong>colores</strong> representan la tendencia detectada: 
+            <span style="color:#FF4757; font-weight:bold;">● En Alza</span>, 
+            <span style="color:#2ED573; font-weight:bold;">● Novedad</span> y 
+            <span style="color:#1E90FF; font-weight:bold;">● Consolidado</span>.
+        </div>
 
 		{* CHART SECTION *}
-		<div style="margin-bottom: 40px; padding: 20px; background: #fafafa; border-radius: 8px; border: 1px solid #eee;">
-			<h3 style="text-align:center; color:#333; margin-bottom: 20px;">Matriz de Impacto vs. Madurez Académica</h3>
-			<div style="position: relative; height: 600px; width: 100%;">
-				<div id="radarBubbleChart" style="width:100%; height:100%;"></div>
+		<div style="margin-bottom: 40px; padding: 10px 20px 20px 20px; background: #fafafa; border-radius: 8px; border: 1px solid #eee;">
+            <div style="position: relative; min-height: 600px; width: 100%;">
+				<div id="radarBubbleChart" style="width:100%; height:600px;"></div>
 			</div>
+
+            {* STATIC LEGEND *}
+            <div class="d-flex flex-wrap justify-content-center gap-4 mt-2 p-3 border-top" style="display: flex; justify-content: center; gap: 20px; border-top: 1px solid #ddd; padding-top: 20px; margin-top: 20px; flex-wrap: wrap;">
+                <div class="d-flex align-items-center gap-2 small text-muted" style="display: flex; align-items: center; gap: 8px; color: #666; font-size: 0.9em;">
+                    <span class="dot size-indicator" style="width: 10px; height: 10px; border-radius: 50%; border: 1px solid #999; display: inline-block;"></span>
+                    <span><b>Tamaño:</b> Volumen de apariciones</span>
+                </div>
+                
+                <div class="interactive-legend-item static" style="display: flex; align-items: center; gap: 8px; font-size: 0.9em;">
+                    <span class="dot color-rising" style="width: 10px; height: 10px; border-radius: 50%; background: #FF4757; display: inline-block;"></span>
+                    <span>En Alza (Rising)</span>
+                </div>
+
+                <div class="interactive-legend-item static" style="display: flex; align-items: center; gap: 8px; font-size: 0.9em;">
+                    <span class="dot color-new" style="width: 10px; height: 10px; border-radius: 50%; background: #2ED573; display: inline-block;"></span>
+                    <span>Novedad (New)</span>
+                </div>
+
+                <div class="interactive-legend-item static" style="display: flex; align-items: center; gap: 8px; font-size: 0.9em;">
+                    <span class="dot color-stable" style="width: 10px; height: 10px; border-radius: 50%; background: #1E90FF; display: inline-block;"></span>
+                    <span>Consolidado (Stable)</span>
+                </div>
+            </div>
+
+            {* TRENDING CARDS LIST (3 COLUMNS) *}
+            <div class="row" style="margin-top: 40px; margin-left: -10px; margin-right: -10px;">
+                <!-- Column 1: STABLE -->
+                <div class="col-md-4" style="padding: 0 10px;">
+                    <div style="background-color: #f0f8ff; border-top: 3px solid #1E90FF; padding: 10px; border-radius: 4px 4px 0 0; margin-bottom: 15px;">
+                        <h5 style="color: #1E90FF; text-transform: uppercase; margin: 0; font-weight: bold;">Consolidados</h5>
+                    </div>
+                    <div id="radarList_stable" style="display: flex; flex-direction: column; gap: 15px;"></div>
+                </div>
+                
+                <!-- Column 2: RISING -->
+                <div class="col-md-4" style="padding: 0 10px;">
+                    <div style="background-color: #fff0f1; border-top: 3px solid #FF4757; padding: 10px; border-radius: 4px 4px 0 0; margin-bottom: 15px;">
+                        <h5 style="color: #FF4757; text-transform: uppercase; margin: 0; font-weight: bold;">En Alza</h5>
+                    </div>
+                    <div id="radarList_rising" style="display: flex; flex-direction: column; gap: 15px;"></div>
+                </div>
+
+                <!-- Column 3: NEW -->
+                <div class="col-md-4" style="padding: 0 10px;">
+                     <div style="background-color: #f0fff4; border-top: 3px solid #2ED573; padding: 10px; border-radius: 4px 4px 0 0; margin-bottom: 15px;">
+                        <h5 style="color: #2ED573; text-transform: uppercase; margin: 0; font-weight: bold;">Novedades</h5>
+                    </div>
+                    <div id="radarList_new" style="display: flex; flex-direction: column; gap: 15px;"></div>
+                </div>
+            </div>
 		</div>
 
 	</div>
 
 	{* ODS CONTENT (DONUT + ICONS) *}
 	<div id="tab_content_ods" class="analysis_tab_content" style="display:none;">
-		<div style="background: #fafafa; padding: 20px; border-radius: 8px; border: 1px solid #eee;">
-			<h3 style="text-align:center; color:#333; margin-bottom:10px;">Contribución a los Objetivos de Desarrollo Sostenible</h3>
-			<p style="text-align:center; color:#666; font-size:0.9em; margin-bottom: 30px;">
-				Porcentaje de alineación temática del número con la Agenda 2030 de la ONU.
-			</p>
-			
+            <!-- Title -->
+            <h4 style="
+                color: #006798; 
+                margin-bottom: 20px; 
+                font-weight: 700; 
+                text-transform: uppercase; 
+                letter-spacing: 0.5px; 
+                border-bottom: 2px solid #eee; 
+                padding-bottom: 10px;
+            ">Impacto ODS</h4>
+
+            <!-- Explanation Box -->
+            <div class="pkp_notification" style="background:#f0f8ff; border: 1px solid #d1e6fa; border-left:4px solid #1E90FF; padding:15px; margin-bottom:20px; border-radius: 4px; font-size: 0.95em; color: #444;">
+                <strong style="color: #004d71;">Contribución a los Objetivos de Desarrollo Sostenible</strong><br>
+                Este gráfico muestra el porcentaje de alineación temática de los artículos publicados en este número con la Agenda 2030 de la ONU. Además, se detalla cada objetivo impactado con un breve análisis de su relevancia en la publicación.
+            </div>
+
+		    <div style="background: #fafafa; padding: 20px; border-radius: 8px; border: 1px solid #eee;">
 			{* 1. DONUT CHART *}
 			<div style="position: relative; height: 350px; width: 100%; margin-bottom: 40px;">
 				<div id="odsDonutChart" style="width:100%; height:100%;"></div>
@@ -94,6 +208,79 @@
 
 		</div>
 	</div>
+	</div>
+
+	{* GEO CONTENT (MAP) *}
+	<div id="tab_content_geo" class="analysis_tab_content" style="display:none;">
+            <!-- Title -->
+            <h4 style="
+                color: #006798; 
+                margin-bottom: 20px; 
+                font-weight: 700; 
+                text-transform: uppercase; 
+                letter-spacing: 0.5px; 
+                border-bottom: 2px solid #eee; 
+                padding-bottom: 10px;
+            ">Mapa Global de Colaboración</h4>
+            
+            <!-- Explanation Box -->
+            <div class="pkp_notification" style="background:#f0f8ff; border: 1px solid #d1e6fa; border-left:4px solid #1E90FF; padding:15px; margin-bottom:20px; border-radius: 4px; font-size: 0.95em; color: #444;">
+                <strong style="color: #004d71;">Alcance Internacional e Institucional</strong><br>
+                Este mapa visualiza el origen geográfico de los autores de este número. Los <strong>puntos</strong> representan las instituciones (el tamaño varía según el número de autores) y las <strong>líneas</strong> muestran las redes de colaboración transnacional que han hecho posible las investigaciones publicadas.
+            </div>
+
+            <div style="background: #fafafa; padding: 10px; border-radius: 8px; border: 1px solid #eee;">
+                <div id="geoAnalysisMap" style="width:100%; height:600px; border-radius: 6px; border: 1px solid #ddd; z-index: 1;"></div>
+                
+                {* Legend for Map *}
+                <div style="display: flex; gap: 20px; justify-content: center; margin-top: 15px; font-size: 0.85em; color: #666; flex-wrap: wrap; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <span style="width: 12px; height: 12px; border-radius: 50%; background: rgba(30, 144, 255, 0.6); display: inline-block; border: 1px solid #1E90FF;"></span> Institución
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <span style="width: 20px; height: 3px; background: #FF4757; display: inline-block;"></span> Internacional
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <span style="width: 20px; height: 3px; background: #666; display: inline-block;"></span> Nacional
+                    </div>
+                </div>
+
+                {* Authors and Affiliations Table *}
+                <div style="margin-top: 30px; padding: 10px;">
+                    <h4 style="color: #006798; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 8px;">Listado de Autores y Afiliaciones</h4>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; background: white; border: 1px solid #eee; font-size: 0.9em;">
+                            <thead>
+                                <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6; text-align: left;">
+                                    <th style="padding: 12px; font-weight: 600; color: #495057;">Autor</th>
+                                    <th style="padding: 12px; font-weight: 600; color: #495057;">Afiliación</th>
+                                    <th style="padding: 12px; font-weight: 600; color: #495057;">Artículo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {foreach from=$authorsData item=author}
+                                    <tr style="border-bottom: 1px solid #eee;">
+                                        <td style="padding: 10px 12px; color: #333;"><strong>{$author.name|escape}</strong></td>
+                                        <td style="padding: 10px 12px; color: #666;">
+                                            {if $author.affiliation}
+                                                {$author.affiliation|escape}
+                                            {else}
+                                                <span style="color: #ccc; font-style: italic;">Sin afiliación</span>
+                                            {/if}
+                                        </td>
+                                        <td style="padding: 10px 12px; color: #006798; font-size: 0.85em;">{$author.article|escape}</td>
+                                    </tr>
+                                {foreachelse}
+                                    <tr>
+                                        <td colspan="3" style="padding: 20px; text-align: center; color: #999;">No hay datos de autores disponibles.</td>
+                                    </tr>
+                                {/foreach}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+	</div>
 
 	<div style="margin-top: 40px; text-align: center;">
 		<a href="{url page="issue" op="view" path=$issueId}" class="pkp_button">Volver al Número</a>
@@ -101,6 +288,11 @@
 </div>
 
 {* EXTERNAL LIBRARIES *}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+{* Library for curved/animated lines *}
+<script src="https://cdn.jsdelivr.net/npm/leaflet-ant-path@1.3.0/dist/leaflet-ant-path.min.js"></script>
+
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/highcharts-more.js"></script>
 <script src="https://code.highcharts.com/modules/accessibility.js"></script>
@@ -117,15 +309,14 @@
 		document.getElementById('tab_content_editorial').style.display = 'none';
 		document.getElementById('tab_content_radar').style.display = 'none';
 		document.getElementById('tab_content_ods').style.display = 'none';
+		document.getElementById('tab_content_geo').style.display = 'none';
 		
 		// Reset buttons
-		document.getElementById('tab_btn_editorial').className = 'pkp_button';
-		document.getElementById('tab_btn_radar').className = 'pkp_button';
-		document.getElementById('tab_btn_ods').className = 'pkp_button';
+		document.querySelectorAll('.analysis_tab_btn').forEach(btn => btn.classList.remove('active'));
 		
 		// Show active
 		document.getElementById('tab_content_' + tabName).style.display = 'block';
-		document.getElementById('tab_btn_' + tabName).className = 'pkp_button pkp_button_primary';
+		document.getElementById('tab_btn_' + tabName).classList.add('active');
 		
 		// Force Highcharts reflow
 		if (tabName === 'radar' && window.radarChart) {
@@ -134,6 +325,10 @@
 		if (tabName === 'ods' && window.odsChart) {
 			setTimeout(() => window.odsChart.reflow(), 10);
 		}
+        // Force Leaflet invalidateSize
+        if (tabName === 'geo' && window.geoMap) {
+            setTimeout(() => window.geoMap.invalidateSize(), 50);
+        }
 	}
 
 	// Highcharts Logic
@@ -141,89 +336,196 @@
 {/literal}
 		const rawData = {$thematicClusters|json_encode};
 		const odsDataRaw = {$expertSuggestions|json_encode}; // ODS Data
+        const geoData = {$geoAnalysis|json_encode}; // GEO Data
 {literal}
 		
-		// --- RADAR CHART (SCATTER) ---
-		const scatterData = rawData.map(item => {
-			return {
-				name: item.concept || item.tag, 
-				x: parseInt(item.maturity || 50),
-				y: parseInt(item.impact || 50),
-				category: item.category || 'General'
-			};
-		});
+		// --- RADAR CHART (PACKED BUBBLE) ---
+		// Map new data structure (tag, count, trend)
+		let filteredData = [];
+		if (Array.isArray(rawData)) {
+			filteredData = rawData
+				.map(item => {
+					// Define colors and display text based on trend
+					let color = '#1E90FF'; // stable default
+					let trendDisplay = 'Estable';
+					
+					if (item.trend === 'rising') { 
+						color = '#FF4757'; 
+						trendDisplay = 'En Alza'; 
+					} else if (item.trend === 'new') { 
+						color = '#2ED573'; 
+						trendDisplay = 'Novedad'; 
+					} else if (item.trend === 'stable') {
+						color = '#1E90FF';
+						trendDisplay = 'Consolidado';
+					}
+
+					return {
+						name: item.tag || item.concept, // Fallback for old data
+						value: parseInt(item.count || item.impact), // Fallback for old data
+						trendDisplay: trendDisplay,
+						color: color,
+						trend: item.trend
+					};
+				})
+				.filter(item => item.value > 0);
+		}
 
 		window.radarChart = Highcharts.chart('radarBubbleChart', {
 			chart: {
-				type: 'scatter',
-				zoomType: 'xy',
+				type: 'packedbubble',
+				height: '600px',
 				backgroundColor: 'transparent',
-				style: { fontFamily: 'inherit' }
+				spacing: [0, 0, 0, 0],
+				animation: false
 			},
 			title: { text: '' },
-			credits: { enabled: false },
-			xAxis: {
-				title: { text: 'Grado de Madurez', style: { color: '#666' } },
-				min: 0, max: 100,
-				gridLineWidth: 1,
-				plotLines: [{
-					color: '#ccc', width: 2, value: 50, dashStyle: 'Dash', zIndex: 1
-				}],
-				labels: { format: '{value}%' }
+			subtitle: { text: '' },
+			tooltip: {
+				useHTML: true,
+				backgroundColor: 'rgba(255, 255, 255, 0.95)',
+				borderRadius: 8,
+				borderWidth: 1,
+				borderColor: '#ddd',
+				pointFormat: `
+					<div style="padding: 10px; min-width: 150px; font-family: Arial, sans-serif;">
+						<span style="color:{point.color}; font-size: 18px; font-weight: bold">{point.name}</span><br/>
+						<div style="margin-top: 5px; font-size: 14px; color: #666">
+							<b>Volumen:</b> {point.value}<br/>
+							<b>Tendencia:</b> <span style="text-transform: capitalize">{point.trendDisplay}</span>
+						</div>
+					</div>
+				`
 			},
-			yAxis: {
-				title: { text: 'Impacto Potencial', style: { color: '#666' } },
-				min: 0, max: 100,
-				gridLineWidth: 1,
-				plotLines: [{
-					color: '#ccc', width: 2, value: 50, dashStyle: 'Dash', zIndex: 1
-				}],
-				labels: { format: '{value}%' }
-			},
-			legend: { enabled: false },
 			plotOptions: {
-				scatter: {
-					marker: {
-						radius: 8,
-						states: { hover: { enabled: true, lineColor: 'rgb(100,100,100)' } }
-					},
-					tooltip: {
-						headerFormat: '<b>{point.point.name}</b><br>',
-						pointFormat: '{point.category}<br>Madurez: {point.x}<br>Impacto: {point.y}'
+				packedbubble: {
+					minSize: '40%',
+					maxSize: '160%',
+					layoutAlgorithm: {
+						gravitationalConstant: 0.05,
+						splitSeries: false,
+						seriesInteraction: true,
+						dragBetweenSeries: false,
+						parentNodeLimit: true,
+						bubblePadding: 10, // Aumentamos el espacio para evitar solapamiento
+						enableSimulation: true,
+						initialAnimation: true,
+						maxIterations: 1000,
+						friction: -0.98
 					},
 					dataLabels: {
 						enabled: true,
 						format: '{point.name}',
-						style: { textOutline: 'none', color: '#333' },
-						y: -10 
+						filter: {
+							property: 'y',
+							operator: '>',
+							value: 0
+						},
+						style: {
+							color: 'white',
+							textOutline: '2px rgba(0,0,0,0.5)',
+							weight: '600',
+							fontSize: '11px',
+							fontFamily: 'Arial, sans-serif'
+						}
 					}
 				}
 			},
+			legend: { enabled: false },
 			series: [{
 				name: 'Conceptos',
-				color: 'rgba(0, 103, 152, 0.7)', 
-				data: scatterData
+				data: filteredData
 			}],
-			annotations: [{
-				labels: [{
-					point: { x: 5, y: 95, xAxis: 0, yAxis: 0 },
-					text: '⭐ APUESTAS FUTURAS',
-					backgroundColor: 'rgba(255,255,255,0.7)', style: {color: '#d9534f', fontSize: '10px'}
-				}, {
-					point: { x: 95, y: 95, xAxis: 0, yAxis: 0 },
-					text: '💎 CLÁSICOS DE VALOR',
-					backgroundColor: 'rgba(255,255,255,0.7)', style: {color: '#2c832c', fontSize: '10px'}
-				}, {
-					point: { x: 5, y: 5, xAxis: 0, yAxis: 0 },
-					text: '🧪 EXPERIMENTAL',
-					backgroundColor: 'rgba(255,255,255,0.7)', style: {color: '#777', fontSize: '10px'}
-				}, {
-					point: { x: 95, y: 5, xAxis: 0, yAxis: 0 },
-					text: '📚 FUNDAMENTOS',
-					backgroundColor: 'rgba(255,255,255,0.7)', style: {color: '#777', fontSize: '10px'}
-				}]
-			}]
+			exporting: { enabled: false },
+			credits: { enabled: false }
 		});
+
+        // --- RENDER TREND CARDS (3 COLUMNS) ---
+        // 1. Get Containers
+        const colStable = document.getElementById('radarList_stable');
+        const colRising = document.getElementById('radarList_rising');
+        const colNew    = document.getElementById('radarList_new');
+
+        if (colStable && colRising && colNew && filteredData.length > 0) {
+            
+            // 2. Define Styles Wrapper
+            const trendStyles = {
+                'stable': { color: '#1E90FF', bg: '#1E90FF', label: 'CONSOLIDADO' },
+                'rising': { color: '#FF4757', bg: '#FF4757', label: 'EN ALZA' },
+                'new':    { color: '#2ED573', bg: '#2ED573', label: 'NUEVA / DISRUPTIVA' }
+            };
+
+            // 3. Sort Data by Value Descending
+            const sortedData = [...filteredData].sort((a, b) => b.value - a.value);
+
+            // 4. Distribute to Columns
+            sortedData.forEach(item => {
+                const trendKey = (item.trend || 'stable').toLowerCase();
+                // Map 'new' to 'new' column regardless of exact string match if possible, or fallback
+                let targetContainer = colStable; // Default
+                let style = trendStyles['stable'];
+
+                if (trendKey === 'rising') {
+                    targetContainer = colRising;
+                    style = trendStyles['rising'];
+                } else if (trendKey === 'new') {
+                    targetContainer = colNew;
+                    style = trendStyles['new'];
+                }
+
+                // Lighter background colors for the badges/hover
+                const lightBgs = {
+                    'stable': '#e6f2ff', 
+                    'rising': '#ffe6e9', 
+                    'new':    '#e6fffa'
+                };
+                const badgeBg = lightBgs[trendKey] || '#f5f5f5';
+
+                const cardHtml = `
+                    <div style="
+                        background: white; 
+                        border-left: 5px solid ${style.color}; 
+                        border-radius: 4px; 
+                        border-top: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.03); 
+                        display:flex; 
+                        justify-content: space-between; 
+                        align-items: center;
+                        padding: 12px 15px;
+                        transition: transform 0.2s ease;
+                    " onmouseover="this.style.transform='translateX(3px)'" onmouseout="this.style.transform='translateX(0)'">
+                        
+                        <div style="font-size: 13px; color: #333; line-height: 1.35; font-weight: 600; padding-right: 10px;">
+                            ${item.name}
+                        </div>
+                        
+                        <div style="
+                            background-color: ${badgeBg}; 
+                            color: ${style.color}; 
+                            padding: 4px 8px; 
+                            border-radius: 6px; 
+                            font-size: 11px; 
+                            font-weight: 700;
+                            white-space: nowrap;
+                            min-width: 24px;
+                            text-align: center;
+                        ">
+                            ${item.value}
+                        </div>
+                    </div>
+                `;
+                
+                // Append to specific container
+                targetContainer.insertAdjacentHTML('beforeend', cardHtml);
+            });
+
+            // 5. Empty State Message for columns with no items
+            [colStable, colRising, colNew].forEach(col => {
+                if (col.children.length === 0) {
+                    col.innerHTML = '<div style="color: #999; font-style: italic; font-size: 0.9em; text-align: center; padding: 20px;">Sin elementos en esta categoría</div>';
+                }
+            });
+        }
 
 		// --- ODS LOGIC: DONUT + CARDS ---
 		let odsData = [];
@@ -310,6 +612,136 @@
 		} else {
 			document.getElementById('odsDonutChart').innerHTML = "<p style='text-align:center; padding-top:50px;'>No hay datos ODS disponibles a analizar.</p>";
 		}
+
+        // --- GEO LOGIC: LEAFLET MAP ---
+        if (geoData && geoData.institutions && geoData.institutions.length > 0) {
+            
+            // Helper: Curved points for collaborations
+            function getCurvePoints(start, end, pointsCount = 30) {
+                const lat1 = start[0], lng1 = start[1];
+                const lat2 = end[0], lng2 = end[1];
+                const midLat = (lat1 + lat2) / 2;
+                const midLng = (lng1 + lng2) / 2;
+                const dist = Math.sqrt(Math.pow(lat2-lat1,2) + Math.pow(lng2-lng1,2));
+                const offset = dist * 0.15; // Curviness factor
+                const theta = Math.atan2(lat2 - lat1, lng2 - lng1);
+                const cLat = midLat + offset * Math.cos(theta + Math.PI/2);
+                const cLng = midLng + offset * Math.sin(theta + Math.PI/2);
+                const points = [];
+                for (let i = 0; i <= pointsCount; i++) {
+                    const t = i / pointsCount;
+                    const lat = Math.pow(1-t,2)*lat1 + 2*(1-t)*t*cLat + Math.pow(t,2)*lat2;
+                    const lng = Math.pow(1-t,2)*lng1 + 2*(1-t)*t*cLng + Math.pow(t,2)*lng2;
+                    points.push([lat, lng]);
+                }
+                return points;
+            }
+
+            // Initialize Map with zoom and navigation enabled
+            window.geoMap = L.map('geoAnalysisMap', {
+                scrollWheelZoom: true,
+                dragging: true,
+                touchZoom: true,
+                doubleClickZoom: true,
+                boxZoom: true,
+                minZoom: 2
+            }).setView([20, 0], 2);
+
+            L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }).addTo(window.geoMap);
+
+            // Jitter and Coordinate Mapping
+            const instCoords = {}; // Store mapped/jittered coords for lines
+            const coordUsage = {};
+
+            geoData.institutions.forEach(inst => {
+                if (!inst.lat || !inst.lng) return;
+                
+                let lat = parseFloat(inst.lat);
+                let lng = parseFloat(inst.lng);
+                const key = `${lat.toFixed(3)},${lng.toFixed(3)}`;
+                
+                if (coordUsage[key]) {
+                    // Apply small spiral jitter if coordinate is reused
+                    const angle = coordUsage[key] * (Math.PI / 4);
+                    const radius = 0.05 * coordUsage[key];
+                    lat += radius * Math.cos(angle);
+                    lng += radius * Math.sin(angle);
+                    coordUsage[key]++;
+                } else {
+                    coordUsage[key] = 1;
+                }
+
+                instCoords[inst.name] = [lat, lng];
+
+                // Radius based on count
+                const radius = Math.min(20, 6 + (inst.count * 1.5));
+                const marker = L.circleMarker([lat, lng], {
+                    radius: radius,
+                    fillColor: "#1E90FF",
+                    color: "#004e92",
+                    weight: 1.5,
+                    opacity: 1,
+                    fillOpacity: 0.5
+                }).addTo(window.geoMap);
+
+                marker.bindPopup(`
+                    <div style="font-family: sans-serif; min-width: 200px;">
+                        <strong style="color:#004e92; font-size: 1.1em;">${inst.name}</strong><br>
+                        <div style="margin-top: 5px; color: #555;">
+                            📍 ${inst.city}, ${inst.country}<br>
+                            👥 <strong>${inst.count}</strong> autores en este número
+                        </div>
+                    </div>
+                `);
+            });
+
+            // Collaboration Lines (Curved)
+            if (geoData.collaborations && geoData.collaborations.length > 0) {
+                geoData.collaborations.forEach(collab => {
+                    // Try to use the jittered coordinates from instCoords first
+                    let start = instCoords[collab.from_name];
+                    let end = instCoords[collab.to_name];
+                    
+                    // Fallback to raw coords if name matching fails
+                    if (!start) start = [collab.from_lat, collab.from_lng];
+                    if (!end) end = [collab.to_lat, collab.to_lng];
+                    
+                    if (!start[0] || !end[0]) return;
+
+                    const curvePoints = getCurvePoints(start, end);
+                    const isInternational = collab.type === 'international';
+                    const color = isInternational ? '#FF4757' : '#666';
+
+                    const antPath = L.polyline.antPath(curvePoints, {
+                        delay: isInternational ? 3000 : 5000,
+                        dashArray: [10, 20],
+                        weight: isInternational ? 3 : 1.5,
+                        color: color,
+                        pulseColor: '#FFFFFF',
+                        opacity: 0.7
+                    }).addTo(window.geoMap);
+
+                    // Detailed Tooltip (Sticky)
+                    const label = `<strong>Colaboración ${isInternational ? 'Internacional' : 'Nacional'}</strong><br>${collab.from_name} ⟷ ${collab.to_name}`;
+                    antPath.bindTooltip(label, { sticky: true, html: true });
+                });
+            }
+
+            // Fit map to markers
+            const markerArray = [];
+            for (let name in instCoords) {
+                markerArray.push(L.marker(instCoords[name]));
+            }
+            if (markerArray.length > 0) {
+                const group = L.featureGroup(markerArray);
+                window.geoMap.fitBounds(group.getBounds().pad(0.2));
+            }
+
+        } else {
+             document.getElementById('geoAnalysisMap').innerHTML = "<p style='text-align:center; padding-top:100px; color:#999;'>No hay datos geográficos disponibles en este análisis.</p>";
+        }
 	});
 {/literal}
 </script>

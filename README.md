@@ -1,13 +1,15 @@
 # IssueSpotlight IA - OJS Plugin
 
-AI-powered issue analysis to generate editorial drafts, innovation radars, and expert suggestions.
+Intelligent issue analysis powered by AI to generate editorial drafts, innovation radars, SDG impact assessment, and global collaboration maps.
 
 ## Documentation / Documentación
 
-Please select your language for detailed instructions:
+All detailed documentation has been moved to the `doc/` directory:
 
-- [English (EN)](README_EN.md)
-- [Español (ES)](README_ES.md)
+- **[English (EN)](doc/README_EN.md)**: User guide and features.
+- **[Español (ES)](doc/README_ES.md)**: Guía de usuario y funcionalidades.
+- **[Resumen para Editores (ES)](doc/SUMMARY_EDITORS.md)**: Explicación concisa para responsables editoriales.
+- **[Technical Documentation](doc/TECHNICAL.md)**: Architecture, database schema, and implementation details.
 
 ---
 © 2026 UPC - Universitat Politècnica de Catalunya

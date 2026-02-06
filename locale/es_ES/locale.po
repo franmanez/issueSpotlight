@@ -15,10 +15,13 @@ msgid "plugins.generic.issueSpotlight.displayName"
 msgstr "IssueSpotlight IA"
 
 msgid "plugins.generic.issueSpotlight.analysisTitle"
-msgstr "Espacio de Análisis IA"
+msgstr "IssueSpotlight: análisis inteligente de números"
 
 msgid "plugins.generic.issueSpotlight.description"
-msgstr "Análisis inteligente de números: borrador editorial automático, matriz estratégica de madurez/impacto y visualización de alineación con la Agenda 2030."
+msgstr "Análisis inteligente de números mediante IA: editorial, radar de innovación, impacto ODS y mapa global de colaboración."
+
+msgid "plugins.generic.issueSpotlight.detailedDescription"
+msgstr "Este módulo aplica inteligencia artificial para generar perspectivas avanzadas de análisis:<ul style=\"margin-top:5px; padding-left:20px;\"><li><strong>Resumen editorial:</strong> Generación automática de un borrador editorial sintetizando los temas clave.</li><li><strong>Radar de Innovación:</strong> Mapa visual de tendencias tecnológicas emergentes y consolidadas.</li><li><strong>Impacto ODS:</strong> Evaluación de la alineación temática con los Objetivos de Desarrollo Sostenible.</li><li><strong>Mapa Global:</strong> Visualización de la distribución geográfica de autores y redes internacionales de colaboración.</li></ul>"
 
 msgid "plugins.generic.issueSpotlight.settings"
 msgstr "Configuración"

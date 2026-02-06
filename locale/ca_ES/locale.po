@@ -13,9 +13,15 @@ msgstr ""
 
 msgid "plugins.generic.issueSpotlight.displayName"
 msgstr "IssueSpotlight IA"
+ 
+msgid "plugins.generic.issueSpotlight.analysisTitle"
+msgstr "IssueSpotlight: anàlisi intel·ligent de números"
 
 msgid "plugins.generic.issueSpotlight.description"
-msgstr "Anàlisi intel·ligent de números: esborrany editorial automàtic, matriu estratègica de maduresa/impacte i visualització d'alineació amb l'Agenda 2030."
+msgstr "Anàlisi intel·ligent de números mitjançant IA: editorial, radar d'innovació, impacte ODS i mapa global de col·laboració."
+
+msgid "plugins.generic.issueSpotlight.detailedDescription"
+msgstr "Aquest mòdul aplica intel·ligència artificial per generar perspectives avançades d'anàlisi:<ul style=\"margin-top:5px; padding-left:20px;\"><li><strong>Resum editorial:</strong> Generació automàtica d'un esborrany editorial sintetitzant els temes clau.</li><li><strong>Radar d'Innovació:</strong> Mapa visual de tendències tecnològiques emergents i consolidades.</li><li><strong>Impacte ODS:</strong> Avaluació de l'alineació temàtica amb els Objectius de Desenvolupament Sostenible.</li><li><strong>Mapa Global:</strong> Visualització de la distribució geogràfica d'autors i xarxes internacionals de col·laboració.</li></ul>"
 
 msgid "plugins.generic.issueSpotlight.settings"
 msgstr "Configuració"

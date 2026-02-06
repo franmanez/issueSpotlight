@@ -47,23 +47,62 @@ class IssueSpotlightGridHandler extends GridHandler {
 		]);
 		
 		$idsList = '<ul style="line-height: 1.6;">';
+		$authorsRows = '';
 		$count = 0;
+
 		foreach ($submissionsIterator as $submission) {
-			$title = $submission->getLocalizedTitle();
-			if (!$title) {
-				$publication = $submission->getCurrentPublication();
-				if ($publication) $title = $publication->getLocalizedTitle();
-			}
+			// Title Logic
+			$publication = $submission->getCurrentPublication();
+			$title = $publication ? $publication->getLocalizedTitle() : $submission->getLocalizedTitle();
 			$titleStr = $title ? htmlspecialchars($title) : '<em>(Sin título)</em>';
 			
 			$idsList .= '<li><strong>ID ' . $submission->getId() . ':</strong> ' . $titleStr . '</li>';
+			
+			// Authors Logic
+			if ($publication) {
+				$authors = $publication->getData('authors');
+				if ($authors) {
+					foreach ($authors as $author) {
+						$aff = $author->getLocalizedAffiliation();
+						$affStr = $aff ? htmlspecialchars($aff) : '<span style="color:#999">-</span>';
+						$authorsRows .= '<tr>
+							<td style="padding:5px;">' . htmlspecialchars($author->getFullName()) . '</td>
+							<td style="padding:5px;">' . $affStr . '</td>
+							<td style="padding:5px; font-size:0.85em; color:#666;">' . $titleStr . '</td>
+						</tr>';
+					}
+				}
+			}
 			$count++;
 		}
 		$idsList .= '</ul>';
 
+		$authorsTable = '<table class="pkp_table" style="width:100%; border-collapse: collapse;">
+			<thead>
+				<tr style="background:#f0f0f0; border-bottom:1px solid #ddd; text-align:left;">
+					<th style="padding:8px;">Autor</th>
+					<th style="padding:8px;">Afiliación</th>
+					<th style="padding:8px;">Artículo</th>
+				</tr>
+			</thead>
+			<tbody>' . $authorsRows . '</tbody>
+		</table>';
+
 		// Script JS unificado
 		$jsScript = "
 		<script>
+			function switchAnalysisTab(tabName) {
+				// Hide all
+				document.getElementById('tab_articles').style.display = 'none';
+				document.getElementById('tab_authors').style.display = 'none';
+				document.getElementById('btn_tab_articles').classList.remove('pkp_button_primary');
+				document.getElementById('btn_tab_authors').classList.remove('pkp_button_primary');
+				
+				// Show selected
+				document.getElementById('tab_' + tabName).style.display = 'block';
+				document.getElementById('btn_tab_' + tabName).classList.add('pkp_button_primary');
+			}
+
 			function triggerAnalysis(type) {
 				var btnId = type === 'real' ? 'btnRunReal' : 'btnRunDummy';
 				var url = type === 'real' ? '$realUrl' : '$dummyUrl';
@@ -105,8 +144,23 @@ class IssueSpotlightGridHandler extends GridHandler {
 			'<li><strong>Título:</strong> ' . $issue->getIssueIdentification() . '</li>' .
 			'</ul>' .
 			'<hr>' .
-			'<h4>Artículos Seleccionados (' . $count . ')</h4>' .
-			$idsList .
+			
+			// Tab Buttons
+			'<div style="margin-bottom: 15px;">' .
+				'<button id="btn_tab_articles" class="pkp_button pkp_button_primary" onclick="switchAnalysisTab(\'articles\')">Artículos (' . $count . ')</button> ' .
+				'<button id="btn_tab_authors" class="pkp_button" onclick="switchAnalysisTab(\'authors\')">Autores y Afiliaciones</button>' .
+			'</div>' .
+
+			// Tab Content: Articles
+			'<div id="tab_articles">' .
+				$idsList .
+			'</div>' .
+
+			// Tab Content: Authors
+			'<div id="tab_authors" style="display:none; max-height: 400px; overflow-y: auto; border: 1px solid #eee;">' .
+				$authorsTable .
+			'</div>' .
+
 			'<div style="margin-top: 20px; text-align: center; border-top: 1px solid #eee; padding-top: 20px;">' .
 			'<button id="btnRunDummy" class="pkp_button" style="margin-right: 10px;" onclick="triggerAnalysis(\'dummy\')">Test DB (Dummy)</button>' .
 			'<button id="btnRunReal" class="pkp_button pkp_button_primary" onclick="triggerAnalysis(\'real\')">Análisis REAL (Gemini)</button>' .
@@ -137,8 +191,10 @@ class IssueSpotlightGridHandler extends GridHandler {
 		
 		$this->_persistAnalysisData($issue->getId(), 
 			"<h3>Editorial Dummy</h3><p>Prueba con: $randomTitle</p>", 
-			json_encode([['tag' => 'DummyTag', 'count' => 10, 'status' => 'Estable']]), 
-			"<ul><li>Experto Dummy</li></ul>"
+			json_encode([['tag' => 'DummyTag', 'count' => 10, 'trend' => 'stable']]), 
+			json_encode([['ods' => 4, 'name' => 'Educación', 'percentage' => 100, 'color' => '#C5192D', 'reasoning' => 'Test']]),
+			json_encode(['institutions' => [], 'collaborations' => []]),
+			"Descripción SEO Dummy"
 		);
 
 		return new JSONMessage(true, "<strong>Test OK!</strong> Datos dummy guardados usando: <em>$randomTitle</em>");
@@ -175,18 +231,34 @@ class IssueSpotlightGridHandler extends GridHandler {
 		}
 
 		// 3. Llamadas a Gemini (Secuenciales)
-		// Prompt 2: Matriz de Innovación (Impacto vs Madurez)
-		$promptRadar = "Analiza los títulos y resúmenes proporcionados extrae los 10 conceptos o metodologías más relevantes.
-		Para cada concepto, asígnale dos puntuaciones del 0 al 100 y una categoría breve:
-		1. 'maturity': Grado de consolidación académica (0=Emergente/Nuevo, 100=Clásico/Consolidado).
-		2. 'impact': Potencial de impacto actual o interés transversal (0=Nicho específico, 100=Alto interés general).
-		Devuelve SOLAMENTE un JSON array válido con este formato:
-		[{\"concept\": \"Concepto A\", \"maturity\": 20, \"impact\": 90, \"category\": \"Tecnología\"}, ...]";
+		// Prompt 2: Radar de Innovación (Tags + Count + Trend)
+		$promptRadar = "Analiza la siguiente lista de Títulos y Resúmenes de artículos académicos de un número de revista.
+        Extrae los conceptos tecnológicos, metodológicos o teóricos más relevantes.
+        Para cada concepto:
+        1. Normaliza el nombre (ej: 'AI', 'Inteligencia Artificial' -> 'AI').
+        2. Cuenta su frecuencia de aparición en los artículos (estimada).
+        3. Determina su tendencia ('trend') basándote en el enfoque de los artículos:
+           - 'new': Si se presenta como novedad, innovación o emergente.
+           - 'rising': Si se menciona como tendencia creciente o muy relevante.
+           - 'stable': Si es una tecnología/método base, comparativa o estándar.
+        
+        Devuelve SOLAMENTE un JSON array válido con los 20-30 conceptos más importantes:
+        [{\"tag\": \"Concepto\", \"count\": 5, \"trend\": \"rising\"}, ...]";
 
-		$radarContent = $this->_callGemini($apiKey, $promptRadar, $payload);
+		$radarContentRaw = $this->_callGemini($apiKey, $promptRadar, $payload);
+		if (strpos($radarContentRaw, 'ERROR:') !== false) return new JSONMessage(false, $radarContentRaw);
+
+		$radarContent = preg_replace('/```json|```/', '', $radarContentRaw);
+		$radarJson = json_decode($radarContent, true);
+		if (!$radarJson) $radarJson = [];
 		
 		// Prompt Editorial
 		$editorialHtml = $this->_callGemini($apiKey, "Actúa como Editor Jefe. Escribe una editorial corta (max 200 palabras) en HTML (usando <p>, <h3>, <ul>). Agrupa los artículos por temáticas comunes y destaca tendencias. Sé profesional y académico.", $payload);
+		if (strpos($editorialHtml, 'ERROR:') !== false) return new JSONMessage(false, $editorialHtml);
+
+		// Prompt SEO Description
+		$seoDescription = $this->_callGemini($apiKey, "Genera una meta-descripción SEO (máximo 160 caracteres) que resuma los temas principales de este número para buscadores. Debe ser atractiva y profesional. Devuelve solo el texto plano.", $payload);
+		if (strpos($seoDescription, 'ERROR:') !== false) return new JSONMessage(false, $seoDescription);
 		
 		// Prompt ODS (Objetivos de Desarrollo Sostenible)
 		$promptODS = "Analiza el contenido de los artículos y determina su contribución a los Objetivos de Desarrollo Sostenible (ODS) de la ONU.
@@ -194,65 +266,112 @@ class IssueSpotlightGridHandler extends GridHandler {
 		Devuelve SOLAMENTE un JSON array válido con este formato:
 		[{\"ods\": 4, \"name\": \"Educación de Calidad\", \"percentage\": 30, \"color\": \"#C5192D\", \"reasoning\": \"Breve justificación de 1 frase explicando por qué aplica (menciona temas clave)\"}, ...]";
 
-		$odsContent = $this->_callGemini($apiKey, $promptODS, $payload);
+		$odsContentRaw = $this->_callGemini($apiKey, $promptODS, $payload);
+		if (strpos($odsContentRaw, 'ERROR:') !== false) return new JSONMessage(false, $odsContentRaw);
 
-		// Validación de errores detallada
-		$errors = [];
-		if (strpos($editorialHtml, 'ERROR:') !== false) $errors[] = "Editorial: $editorialHtml";
-		// ODS Content Check
-		if (strpos($odsContent, 'ERROR:') !== false) {
-			$errors[] = "ODS Error: $odsContent"; 
-		} else {
-			// Clean and decode ODS JSON
-			$odsContent = preg_replace('/```json|```/', '', $odsContent);
-			$odsJson = json_decode($odsContent, true);
-			if (!$odsJson) $odsJson = [];
-		}
-		
-		if (!empty($errors)) {
-			return new JSONMessage(false, implode('<br>', $errors));
-		}
+		$odsContent = preg_replace('/```json|```/', '', $odsContentRaw);
+		$odsJson = json_decode($odsContent, true);
+		if (!$odsJson) $odsJson = [];
 
-		if (strpos($radarContent, 'ERROR:') !== false) {
-			// Fallback si el radar falla
-			$radarJson = [];
-			error_log("IssueSpotlight Warning: Radar failed with " . $radarContent);
-		} else {
-			// Intentar limpiar json
-			$radarContent = preg_replace('/```json|```/', '', $radarContent);
-			$radarJson = json_decode($radarContent, true);
-			if (!$radarJson) {
-				$radarJson = []; 
-				error_log("IssueSpotlight Warning: Radar JSON parse failed.");
+		// --- GEO-ANALYSIS (RESTORING PREVIOUS LOGIC) ---
+		$affiliations = [];
+		$submissionsIteratorGeo = Services::get('submission')->getMany(['contextId' => $contextId, 'issueIds' => $issue->getId()]);
+		foreach ($submissionsIteratorGeo as $submission) {
+			$publication = $submission->getCurrentPublication();
+			if ($publication) {
+				$authors = $publication->getData('authors');
+				if ($authors) {
+					foreach ($authors as $author) {
+						$aff = $author->getLocalizedAffiliation();
+						if ($aff) $affiliations[] = $aff;
+					}
+				}
 			}
 		}
+		$uniqueAffiliations = array_unique($affiliations);
+		
+		if (empty($uniqueAffiliations)) {
+			$geoJson = ['institutions' => [], 'collaborations' => []];
+		} else {
+			$affPayload = implode("\n", $uniqueAffiliations);
 
-		// 4. Guardar en Base de Datos
-		// Importante: json_encode convierte el array a string para que SQL no falle
-		// Usamos el campo 'expert_suggestions' para guardar el JSON de ODS (reutilización eficiente)
-		$this->_persistAnalysisData($issue->getId(), $editorialHtml, json_encode($radarJson, JSON_UNESCAPED_UNICODE), json_encode($odsJson, JSON_UNESCAPED_UNICODE));
+			$promptGeo = "Actúa como un experto en geografía institucional y bibliometría.
+			Analiza la siguiente lista de afiliaciones de autores.
+			1. Normaliza las instituciones (ej: 'UPC' -> 'Universitat Politècnica de Catalunya').
+			2. Para cada institución única, encuentra su Ciudad, País y Coordenadas aproximadas (Latitud y Longitud).
+			3. Identifica colaboraciones internacionales o nacionales probables entre estas instituciones.
+			4. Devuelve SOLAMENTE un JSON con este formato exacto:
+			{
+				\"institutions\": [
+					{\"name\": \"Nombre Real\", \"city\": \"Ciudad\", \"country\": \"País\", \"lat\": 0.0, \"lng\": 0.0, \"count\": número_de_autores}
+				],
+				\"collaborations\": [
+					{\"from_name\": \"Nombre Inst 1\", \"to_name\": \"Nombre Inst 2\", \"from_lat\": 0, \"from_lng\": 0, \"to_lat\": 0, \"to_lng\": 0, \"type\": \"international|national\"}
+				]
+			}";
 
-		return new JSONMessage(true, "<strong>¡Análisis Completado!</strong> Los datos reales de Gemini se han guardado correctamente para el número " . $issue->getIssueIdentification());
+			$geoContentRaw = $this->_callGemini($apiKey, $promptGeo, $affPayload);
+			if (strpos($geoContentRaw, 'ERROR:') !== false) return new JSONMessage(false, $geoContentRaw);
+
+			$geoContent = preg_replace('/```json|```/', '', $geoContentRaw);
+			$geoContent = trim(preg_replace('/^[^{]*|[^}]*$/', '', $geoContent));
+			$geoJson = json_decode($geoContent, true);
+			if (!$geoJson) $geoJson = ['institutions' => [], 'collaborations' => []];
+		}
+
+		// 4. Guardar en Base de Datos de forma explícita
+		$dataToPersist = [
+			'editorial' => $editorialHtml,
+			'radar'     => json_encode($radarJson, JSON_UNESCAPED_UNICODE),
+			'ods'       => json_encode($odsJson, JSON_UNESCAPED_UNICODE),
+			'geo'       => json_encode($geoJson, JSON_UNESCAPED_UNICODE),
+			'seo'       => $seoDescription
+		];
+
+		$this->_persistAnalysisData(
+			$issue->getId(), 
+			$dataToPersist['editorial'], 
+			$dataToPersist['radar'], 
+			$dataToPersist['ods'], 
+			$dataToPersist['geo'], 
+			$dataToPersist['seo']
+		);
+
+		return new JSONMessage(true, "<strong>¡Análisis Completado!</strong> Los datos reales de Gemini se han guardado correctamente (incluyendo Mapa y ODS) para el número " . $issue->getIssueIdentification());
 	}
 
 	/**
 	 * Helper: Persistir datos
 	 */
-	private function _persistAnalysisData($issueId, $editorial, $radar, $experts) {
+	private function _persistAnalysisData($issueId, $editorial, $radar, $ods, $geo, $seo) {
 		$dao = new DAO();
 		$result = $dao->retrieve('SELECT count(*) as c FROM issue_ai_analysis WHERE issue_id = ?', [(int)$issueId]);
 		$row = (object) $result->current();
 		$date = Core::getCurrentDate();
 
+		// Log para depuración extrema
+		error_log("IssueSpotlight Debug: Persistiendo ID " . $issueId);
+		error_log("IssueSpotlight Debug: SEO text: " . substr($seo, 0, 100));
+		error_log("IssueSpotlight Debug: GEO JSON: " . substr($geo, 0, 100));
+
 		if ($row && isset($row->c) && $row->c > 0) {
 			$dao->update(
-				'UPDATE issue_ai_analysis SET editorial_draft = ?, thematic_clusters = ?, expert_suggestions = ?, date_generated = ? WHERE issue_id = ?',
-				[$editorial, $radar, $experts, $date, (int)$issueId]
+				'UPDATE issue_ai_analysis 
+				 SET editorial_draft = ?, 
+				     radar_analysis = ?, 
+				     ods_analysis = ?, 
+				     geo_analysis = ?, 
+				     global_seo_description = ?, 
+				     date_generated = ? 
+				 WHERE issue_id = ?',
+				[$editorial, $radar, $ods, $geo, $seo, $date, (int)$issueId]
 			);
 		} else {
 			$dao->update(
-				'INSERT INTO issue_ai_analysis (issue_id, editorial_draft, thematic_clusters, expert_suggestions, date_generated) VALUES (?, ?, ?, ?, ?)',
-				[(int)$issueId, $editorial, $radar, $experts, $date]
+				'INSERT INTO issue_ai_analysis 
+				 (issue_id, editorial_draft, radar_analysis, ods_analysis, geo_analysis, global_seo_description, date_generated) 
+				 VALUES (?, ?, ?, ?, ?, ?, ?)',
+				[(int)$issueId, $editorial, $radar, $ods, $geo, $seo, $date]
 			);
 		}
 	}

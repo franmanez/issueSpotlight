@@ -6,8 +6,9 @@
 			<NOTNULL/>
 		</field>
 		<field name="editorial_draft" type="X"/>
-		<field name="thematic_clusters" type="X"/>
-		<field name="expert_suggestions" type="X"/>
+		<field name="radar_analysis" type="X"/>
+		<field name="ods_analysis" type="X"/>
+		<field name="geo_analysis" type="X"/>
 		<field name="global_seo_description" type="X"/>
 		<field name="tokens_consumed" type="I4"/>
 		<field name="date_generated" type="T"/>

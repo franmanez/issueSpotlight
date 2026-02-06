@@ -51,12 +51,38 @@ class IssueSpotlightHandler extends Handler {
 			$request->redirect(null, 'issue', 'view', $issueId);
 		}
 
+		// Fetch Authors and Affiliations for the table
+		$authorsData = [];
+		$submissionsIterator = Services::get('submission')->getMany([
+			'contextId' => $request->getContext()->getId(),
+			'issueIds' => $issueId,
+		]);
+		
+		foreach ($submissionsIterator as $submission) {
+			$publication = $submission->getCurrentPublication();
+			if ($publication) {
+				$authors = $publication->getData('authors');
+				$title = $publication->getLocalizedTitle();
+				if ($authors) {
+					foreach ($authors as $author) {
+						$authorsData[] = [
+							'name' => $author->getFullName(),
+							'affiliation' => $author->getLocalizedAffiliation(),
+							'article' => $title
+						];
+					}
+				}
+			}
+		}
+
 		// Pass data to view
 		$templateMgr->assign('issue', $issue);
 		$templateMgr->assign('issueId', $issueId);
 		$templateMgr->assign('editorialDraft', $analysisData->editorial_draft);
-		$templateMgr->assign('thematicClusters', json_decode($analysisData->thematic_clusters, true));
-		$templateMgr->assign('expertSuggestions', $analysisData->expert_suggestions);
+		$templateMgr->assign('thematicClusters', json_decode($analysisData->radar_analysis, true));
+		$templateMgr->assign('expertSuggestions', json_decode($analysisData->ods_analysis, true));
+		$templateMgr->assign('geoAnalysis', json_decode($analysisData->geo_analysis, true));
+		$templateMgr->assign('authorsData', $authorsData);
 		
 
 		// Render
