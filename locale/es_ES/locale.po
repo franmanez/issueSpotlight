@@ -15,13 +15,13 @@ msgid "plugins.generic.issueSpotlight.displayName"
 msgstr "IssueSpotlight IA"
 
 msgid "plugins.generic.issueSpotlight.analysisTitle"
-msgstr "IssueSpotlight: análisis inteligente de números"
+msgstr "IssueSpotlight AI - análisis inteligente de números"
 
 msgid "plugins.generic.issueSpotlight.description"
 msgstr "Análisis inteligente de números mediante IA: editorial, radar de innovación, impacto ODS y mapa global de colaboración."
 
 msgid "plugins.generic.issueSpotlight.detailedDescription"
-msgstr "Este módulo aplica inteligencia artificial para generar perspectivas avanzadas de análisis:<ul style=\"margin-top:5px; padding-left:20px;\"><li><strong>Resumen editorial:</strong> Generación automática de un borrador editorial sintetizando los temas clave.</li><li><strong>Radar de Innovación:</strong> Mapa visual de tendencias tecnológicas emergentes y consolidadas.</li><li><strong>Impacto ODS:</strong> Evaluación de la alineación temática con los Objetivos de Desarrollo Sostenible.</li><li><strong>Mapa Global:</strong> Visualización de la distribución geográfica de autores y redes internacionales de colaboración.</li></ul>"
+msgstr "Este módulo presenta perspectivas de análisis avanzadas obtenidas mediante inteligencia artificial:<ul style=\"margin-top:5px; padding-left:20px;\"><li><strong>Resumen editorial:</strong> Generación automática de un borrador editorial sintetizando los temas clave.</li><li><strong>Radar de Innovación:</strong> Mapa visual de tendencias tecnológicas emergentes y consolidadas.</li><li><strong>Impacto ODS:</strong> Evaluación de la alineación temática con los Objetivos de Desarrollo Sostenible.</li><li><strong>Mapa Global:</strong> Visualización de la distribución geográfica de autores y redes internacionales de colaboración.</li></ul>"
 
 msgid "plugins.generic.issueSpotlight.settings"
 msgstr "Configuración"
@@ -49,3 +49,105 @@ msgstr "No se han encontrado artículos en este número."
 
 msgid "plugins.generic.issueSpotlight.errorAnalysis"
 msgstr "Se ha producido un error al llamar al servicio de IA. Comprueba tu clave API."
+
+msgid "plugins.generic.issueSpotlight.tab.editorial"
+msgstr "Resumen editorial"
+
+msgid "plugins.generic.issueSpotlight.tab.radar"
+msgstr "Radar de Innovación"
+
+msgid "plugins.generic.issueSpotlight.tab.ods"
+msgstr "Impacto ODS"
+
+msgid "plugins.generic.issueSpotlight.tab.geo"
+msgstr "Mapa Global"
+
+msgid "plugins.generic.issueSpotlight.backToIssue"
+msgstr "Volver al Número"
+
+msgid "plugins.generic.issueSpotlight.banner.title"
+msgstr "IssueSpotlight AI - análisis inteligente de números"
+
+msgid "plugins.generic.issueSpotlight.banner.btn"
+msgstr "Ver Análisis"
+
+msgid "plugins.generic.issueSpotlight.explanation.editorial.title"
+msgstr "Generación Automática de Contenidos"
+
+msgid "plugins.generic.issueSpotlight.explanation.editorial.desc"
+msgstr "Este resumen editorial ofrece una panorámica de los temas abordados, elaborada a partir del análisis de los títulos y resúmenes de las contribuciones de este número."
+
+msgid "plugins.generic.issueSpotlight.explanation.ods.title"
+msgstr "Contribución a los Objetivos de Desarrollo Sostenible"
+
+msgid "plugins.generic.issueSpotlight.explanation.ods.desc"
+msgstr "Este gráfico muestra el porcentaje de alineación temática de los artículos publicados en este número con la Agenda 2030 de la ONU. Además, se detalla cada objetivo impactado con un breve análisis de su relevancia en la publicación."
+
+msgid "plugins.generic.issueSpotlight.explanation.radar.title"
+msgstr "¿Cómo interpretar este gráfico?"
+
+msgid "plugins.generic.issueSpotlight.explanation.radar.desc"
+msgstr "Este radar visualiza los conceptos clave extraídos del número. El <strong>tamaño</strong> de las burbujas indica el volumen de apariciones. Los <strong>colores</strong> representan la tendencia detectada: <span style=\"color:#FF4757; font-weight:bold;\">● En Alza</span>, <span style=\"color:#2ED573; font-weight:bold;\">● Novedad</span> y <span style=\"color:#1E90FF; font-weight:bold;\">● Consolidado</span>."
+
+msgid "plugins.generic.issueSpotlight.bubble.size"
+msgstr "Tamaño"
+
+msgid "plugins.generic.issueSpotlight.bubble.volumen"
+msgstr "Volumen de apariciones"
+
+msgid "plugins.generic.issueSpotlight.bubble.rising"
+msgstr "En Alza (Rising)"
+
+msgid "plugins.generic.issueSpotlight.bubble.new"
+msgstr "Novedad (New)"
+
+msgid "plugins.generic.issueSpotlight.bubble.stable"
+msgstr "Consolidado (Stable)"
+
+msgid "plugins.generic.issueSpotlight.title.stable"
+msgstr "Consolidados"
+
+msgid "plugins.generic.issueSpotlight.title.rising"
+msgstr "En Alza"
+
+msgid "plugins.generic.issueSpotlight.title.new"
+msgstr "Novedades"
+
+msgid "plugins.generic.issueSpotlight.ods.details"
+msgstr "Detalle de Objetivos Impactados"
+
+msgid "plugins.generic.issueSpotlight.explanation.geo.title"
+msgstr "Mapa Global de Colaboración"
+
+msgid "plugins.generic.issueSpotlight.explanation.geo.reach"
+msgstr "Alcance Internacional e Institucional"
+
+msgid "plugins.generic.issueSpotlight.explanation.geo.desc"
+msgstr "Este mapa visualiza el origen geográfico de los autores de este número. Los <strong>puntos</strong> representan las instituciones (el tamaño varía según el número de autores) y las <strong>líneas</strong> muestran las redes de colaboración transnacional que han hecho posible las investigaciones publicadas."
+
+msgid "plugins.generic.issueSpotlight.geo.institution"
+msgstr "Institución"
+
+msgid "plugins.generic.issueSpotlight.geo.international"
+msgstr "Internacional"
+
+msgid "plugins.generic.issueSpotlight.geo.national"
+msgstr "Nacional"
+
+msgid "plugins.generic.issueSpotlight.geo.authorsTitle"
+msgstr "Listado de Autores y Afiliaciones"
+
+msgid "plugins.generic.issueSpotlight.geo.author"
+msgstr "Autor"
+
+msgid "plugins.generic.issueSpotlight.geo.affiliation"
+msgstr "Afiliación"
+
+msgid "plugins.generic.issueSpotlight.geo.article"
+msgstr "Artículo"
+
+msgid "plugins.generic.issueSpotlight.geo.noAffiliation"
+msgstr "Sin afiliación"
+
+msgid "plugins.generic.issueSpotlight.geo.noAuthors"
+msgstr "No hay datos de autores disponibles."

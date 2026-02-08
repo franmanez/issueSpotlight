@@ -15,13 +15,13 @@ msgid "plugins.generic.issueSpotlight.displayName"
 msgstr "IssueSpotlight IA"
  
 msgid "plugins.generic.issueSpotlight.analysisTitle"
-msgstr "IssueSpotlight: anàlisi intel·ligent de números"
+msgstr "IssueSpotlight AI - anàlisi intel·ligent de números"
 
 msgid "plugins.generic.issueSpotlight.description"
 msgstr "Anàlisi intel·ligent de números mitjançant IA: editorial, radar d'innovació, impacte ODS i mapa global de col·laboració."
 
 msgid "plugins.generic.issueSpotlight.detailedDescription"
-msgstr "Aquest mòdul aplica intel·ligència artificial per generar perspectives avançades d'anàlisi:<ul style=\"margin-top:5px; padding-left:20px;\"><li><strong>Resum editorial:</strong> Generació automàtica d'un esborrany editorial sintetitzant els temes clau.</li><li><strong>Radar d'Innovació:</strong> Mapa visual de tendències tecnològiques emergents i consolidades.</li><li><strong>Impacte ODS:</strong> Avaluació de l'alineació temàtica amb els Objectius de Desenvolupament Sostenible.</li><li><strong>Mapa Global:</strong> Visualització de la distribució geogràfica d'autors i xarxes internacionals de col·laboració.</li></ul>"
+msgstr "Aquest mòdul presenta perspectives d'anàlisi avançades obtingudes mitjançant intel·ligència artificial:<ul style=\"margin-top:5px; padding-left:20px;\"><li><strong>Resum editorial:</strong> Generació automàtica d'un esborrany editorial sintetitzant els temes clau.</li><li><strong>Radar d'Innovació:</strong> Mapa visual de tendències tecnològiques emergents i consolidades.</li><li><strong>Impacte ODS:</strong> Avaluació de l'alineació temàtica amb els Objectius de Desenvolupament Sostenible.</li><li><strong>Mapa Global:</strong> Visualització de la distribució geogràfica d'autors i xarxes internacionals de col·laboració.</li></ul>"
 
 msgid "plugins.generic.issueSpotlight.settings"
 msgstr "Configuració"
@@ -49,3 +49,105 @@ msgstr "No s'han trobat articles en aquest número."
 
 msgid "plugins.generic.issueSpotlight.errorAnalysis"
 msgstr "S'ha produït un error en trucar al servei d'IA. Comprova la teva clau API."
+
+msgid "plugins.generic.issueSpotlight.tab.editorial"
+msgstr "Resum editorial"
+
+msgid "plugins.generic.issueSpotlight.tab.radar"
+msgstr "Radar d'Innovació"
+
+msgid "plugins.generic.issueSpotlight.tab.ods"
+msgstr "Impacte ODS"
+
+msgid "plugins.generic.issueSpotlight.tab.geo"
+msgstr "Mapa Global"
+
+msgid "plugins.generic.issueSpotlight.backToIssue"
+msgstr "Tornar al número"
+
+msgid "plugins.generic.issueSpotlight.banner.title"
+msgstr "IssueSpotlight AI - anàlisi intel·ligent de números"
+
+msgid "plugins.generic.issueSpotlight.banner.btn"
+msgstr "Veure Anàlisi"
+
+msgid "plugins.generic.issueSpotlight.explanation.editorial.title"
+msgstr "Generació Automàtica de Continguts"
+
+msgid "plugins.generic.issueSpotlight.explanation.editorial.desc"
+msgstr "Aquest resum editorial ofereix una panoràmica dels temes abordats, elaborada a partir de l'anàlisi dels títols i resums de les contribucions d'aquest número."
+
+msgid "plugins.generic.issueSpotlight.explanation.ods.title"
+msgstr "Contribució als Objectius de Desenvolupament Sostenible"
+
+msgid "plugins.generic.issueSpotlight.explanation.ods.desc"
+msgstr "Aquest gràfic mostra el percentatge d'alineació temàtica dels articles publicats en aquest número amb l'Agenda 2030 de l'ONU. A més, es detalla cada objectiu impactat amb una breu anàlisi de la seva rellevància en la publicació."
+
+msgid "plugins.generic.issueSpotlight.explanation.radar.title"
+msgstr "Com interpretar aquest gràfic?"
+
+msgid "plugins.generic.issueSpotlight.explanation.radar.desc"
+msgstr "Aquest radar visualitza els conceptes clau extrets del número. La <strong>mida</strong> de les bombolles indica el volum d'aparicions. Els <strong>colors</strong> representen la tendència detectada: <span style=\"color:#FF4757; font-weight:bold;\">● En Alça</span>, <span style=\"color:#2ED573; font-weight:bold;\">● Novetat</span> i <span style=\"color:#1E90FF; font-weight:bold;\">● Consolidat</span>."
+
+msgid "plugins.generic.issueSpotlight.bubble.size"
+msgstr "Mida"
+
+msgid "plugins.generic.issueSpotlight.bubble.volumen"
+msgstr "Volum d'aparicions"
+
+msgid "plugins.generic.issueSpotlight.bubble.rising"
+msgstr "En Alça (Rising)"
+
+msgid "plugins.generic.issueSpotlight.bubble.new"
+msgstr "Novetat (New)"
+
+msgid "plugins.generic.issueSpotlight.bubble.stable"
+msgstr "Consolidat (Stable)"
+
+msgid "plugins.generic.issueSpotlight.title.stable"
+msgstr "Consolidats"
+
+msgid "plugins.generic.issueSpotlight.title.rising"
+msgstr "En Alça"
+
+msgid "plugins.generic.issueSpotlight.title.new"
+msgstr "Novetats"
+
+msgid "plugins.generic.issueSpotlight.ods.details"
+msgstr "Detall d'Objectius Impactats"
+
+msgid "plugins.generic.issueSpotlight.explanation.geo.title"
+msgstr "Mapa Global de Col·laboració"
+
+msgid "plugins.generic.issueSpotlight.explanation.geo.reach"
+msgstr "Abast Internacional i Institucional"
+
+msgid "plugins.generic.issueSpotlight.explanation.geo.desc"
+msgstr "Aquest mapa visualitza l'origen geogràfic dels autors d'aquest número. Els <strong>punts</strong> representen les institucions (la mida varia segons el nombre d'autors) i les <strong>línies</strong> mostren les xarxes de col·laboració transnacional que han fet possible les investigacions publicades."
+
+msgid "plugins.generic.issueSpotlight.geo.institution"
+msgstr "Institució"
+
+msgid "plugins.generic.issueSpotlight.geo.international"
+msgstr "Internacional"
+
+msgid "plugins.generic.issueSpotlight.geo.national"
+msgstr "Nacional"
+
+msgid "plugins.generic.issueSpotlight.geo.authorsTitle"
+msgstr "Llistat d'Autors i Afiliacions"
+
+msgid "plugins.generic.issueSpotlight.geo.author"
+msgstr "Autor"
+
+msgid "plugins.generic.issueSpotlight.geo.affiliation"
+msgstr "Afiliació"
+
+msgid "plugins.generic.issueSpotlight.geo.article"
+msgstr "Article"
+
+msgid "plugins.generic.issueSpotlight.geo.noAffiliation"
+msgstr "Sense afiliació"
+
+msgid "plugins.generic.issueSpotlight.geo.noAuthors"
+msgstr "No hi ha dades d'autors disponibles."

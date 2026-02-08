@@ -8,6 +8,7 @@ All detailed documentation has been moved to the `doc/` directory:
 
 - **[English (EN)](doc/README_EN.md)**: User guide and features.
 - **[Español (ES)](doc/README_ES.md)**: Guía de usuario y funcionalidades.
+- **[Català (CA)](doc/README_CA.md)**: Guia d'usuari i funcionalitats.
 - **[Resumen para Editores (ES)](doc/SUMMARY_EDITORS.md)**: Explicación concisa para responsables editoriales.
 - **[Technical Documentation](doc/TECHNICAL.md)**: Architecture, database schema, and implementation details.
 

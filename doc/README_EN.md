@@ -24,7 +24,16 @@ The plugin uses the **Gemini 2.0 Flash Lite** model to process information in fo
 
 1.  **Installation**: Copy the plugin folder to `plugins/generic/issueSpotlight`.
 2.  **Database**: Ensure the `issue_ai_analysis` table exists (see technical section).
-3.  **API Key**: Obtain a key from [Google AI Studio](https://aistudio.google.com/) and enter it in the plugin settings (*Settings > Website > Plugins*).
+### How to Obtain the Gemini API Key (Free)
+
+For the plugin to work, you need an access key for Google's artificial intelligence:
+
+1.  Go to **[Google AI Studio](https://aistudio.google.com/)** and sign in with your Google account.
+2.  In the left sidebar, click on the key icon or the **"Get API key"** button.
+3.  Click the blue **"Create API key"** button and select a project (or create a new one).
+4.  Copy the generated alphanumeric key.
+5.  In your OJS, go to **Settings > Website > Plugins**, find "IssueSpotlight IA," and click on **Settings** to paste the key.
+
 4.  **Execution**: In the issue lists (Future or Back issues), use the blue **"IssueSpotlight IA"** button to start the process.
 
 ## Usage Notes

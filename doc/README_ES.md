@@ -24,7 +24,16 @@ El plugin utiliza el modelo **Gemini 2.0 Flash Lite** para procesar la informaci
 
 1.  **Instalación**: Copia la carpeta del plugin en `plugins/generic/issueSpotlight`.
 2.  **Base de Datos**: Asegúrate de que la tabla `issue_ai_analysis` existe (ver sección técnica).
-3.  **API Key**: Obtén una clave en [Google AI Studio](https://aistudio.google.com/) e introdúcela en la configuración del plugin (*Ajustes > Website > Plugins*).
+### Cómo obtener la Clave API de Gemini (Gratuita)
+
+Para que el plugin funcione, necesitas una clave de acceso a la inteligencia artificial de Google:
+
+1.  Accede a **[Google AI Studio](https://aistudio.google.com/)** e inicia sesión con tu cuenta de Google.
+2.  En el menú lateral izquierdo, haz clic en el icono de la llave o en el botón **"Get API key"** (Obtener clave API).
+3.  Pulsa en el botón azul **"Create API key"** (Crear clave API) y selecciona un proyecto (o crea uno nuevo).
+4.  Copia la clave alfanumérica generada.
+5.  En tu OJS, ve a **Ajustes > Website > Plugins**, busca "IssueSpotlight IA" y pulsa en **Ajustes** para pegar la clave.
+
 4.  **Ejecución**: En el listado de números (Futuros o Publicados), utiliza el botón azul **"IssueSpotlight IA"** para iniciar el proceso.
 
 ## Notas de Uso

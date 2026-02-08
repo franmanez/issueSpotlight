@@ -51,16 +51,16 @@
 
 	<ul class="analysis_tabs">
 		<li>
-			<a href="#" onclick="switchTab('editorial'); return false;" class="analysis_tab_btn active" id="tab_btn_editorial">Resumen editorial</a>
+			<a href="#" onclick="switchTab('editorial'); return false;" class="analysis_tab_btn active" id="tab_btn_editorial">{translate key="plugins.generic.issueSpotlight.tab.editorial"}</a>
 		</li>
 		<li>
-			<a href="#" onclick="switchTab('radar'); return false;" class="analysis_tab_btn" id="tab_btn_radar">Radar de Innovación</a>
+			<a href="#" onclick="switchTab('radar'); return false;" class="analysis_tab_btn" id="tab_btn_radar">{translate key="plugins.generic.issueSpotlight.tab.radar"}</a>
 		</li>
 		<li>
-			<a href="#" onclick="switchTab('ods'); return false;" class="analysis_tab_btn" id="tab_btn_ods">Impacto ODS</a>
+			<a href="#" onclick="switchTab('ods'); return false;" class="analysis_tab_btn" id="tab_btn_ods">{translate key="plugins.generic.issueSpotlight.tab.ods"}</a>
 		</li>
 		<li>
-			<a href="#" onclick="switchTab('geo'); return false;" class="analysis_tab_btn" id="tab_btn_geo">Mapa Global</a>
+			<a href="#" onclick="switchTab('geo'); return false;" class="analysis_tab_btn" id="tab_btn_geo">{translate key="plugins.generic.issueSpotlight.tab.geo"}</a>
 		</li>
 	</ul>
 
@@ -76,12 +76,12 @@
             letter-spacing: 0.5px; 
             border-bottom: 2px solid #eee; 
             padding-bottom: 10px;
-        ">Resumen editorial</h4>
+        ">{translate key="plugins.generic.issueSpotlight.tab.editorial"}</h4>
 
         <!-- Explanation Box -->
         <div class="pkp_notification" style="background:#f0f8ff; border: 1px solid #d1e6fa; border-left:4px solid #1E90FF; padding:15px; margin-bottom:20px; border-radius: 4px; font-size: 0.95em; color: #444;">
-            <strong style="color: #004d71;">Generación Automática de Contenidos</strong><br>
-            Este resumen editorial ofrece una panorámica de los temas abordados, elaborada a partir del análisis de los títulos y resúmenes de las contribuciones de este número.
+            <strong style="color: #004d71;">{translate key="plugins.generic.issueSpotlight.explanation.editorial.title"}</strong><br>
+            {translate key="plugins.generic.issueSpotlight.explanation.editorial.desc"}
         </div>
 
 		<div class="content_body" style="font-size: 1.1em; line-height: 1.8; color: #333;">
@@ -101,17 +101,12 @@
             letter-spacing: 0.5px; 
             border-bottom: 2px solid #eee; 
             padding-bottom: 10px;
-        ">Radar de Innovación</h4>
+        ">{translate key="plugins.generic.issueSpotlight.tab.radar"}</h4>
 
         <!-- Explanation Box -->
         <div class="pkp_notification" style="background:#f0f8ff; border: 1px solid #d1e6fa; border-left:4px solid #1E90FF; padding:15px; margin-bottom:20px; border-radius: 4px; font-size: 0.95em; color: #444;">
-            <strong style="color: #004d71;">¿Cómo interpretar este gráfico?</strong><br>
-            Este radar visualiza los conceptos clave extraídos del número. 
-            El <strong>tamaño</strong> de las burbujas indica el volumen de apariciones. 
-            Los <strong>colores</strong> representan la tendencia detectada: 
-            <span style="color:#FF4757; font-weight:bold;">● En Alza</span>, 
-            <span style="color:#2ED573; font-weight:bold;">● Novedad</span> y 
-            <span style="color:#1E90FF; font-weight:bold;">● Consolidado</span>.
+            <strong style="color: #004d71;">{translate key="plugins.generic.issueSpotlight.explanation.radar.title"}</strong><br>
+            {translate key="plugins.generic.issueSpotlight.explanation.radar.desc"}
         </div>
 
 		{* CHART SECTION *}
@@ -124,22 +119,22 @@
             <div class="d-flex flex-wrap justify-content-center gap-4 mt-2 p-3 border-top" style="display: flex; justify-content: center; gap: 20px; border-top: 1px solid #ddd; padding-top: 20px; margin-top: 20px; flex-wrap: wrap;">
                 <div class="d-flex align-items-center gap-2 small text-muted" style="display: flex; align-items: center; gap: 8px; color: #666; font-size: 0.9em;">
                     <span class="dot size-indicator" style="width: 10px; height: 10px; border-radius: 50%; border: 1px solid #999; display: inline-block;"></span>
-                    <span><b>Tamaño:</b> Volumen de apariciones</span>
+                    <span><b>{translate key="plugins.generic.issueSpotlight.bubble.size"}:</b> {translate key="plugins.generic.issueSpotlight.bubble.volumen"}</span>
                 </div>
                 
                 <div class="interactive-legend-item static" style="display: flex; align-items: center; gap: 8px; font-size: 0.9em;">
                     <span class="dot color-rising" style="width: 10px; height: 10px; border-radius: 50%; background: #FF4757; display: inline-block;"></span>
-                    <span>En Alza (Rising)</span>
+                    <span>{translate key="plugins.generic.issueSpotlight.bubble.rising"}</span>
                 </div>
 
                 <div class="interactive-legend-item static" style="display: flex; align-items: center; gap: 8px; font-size: 0.9em;">
                     <span class="dot color-new" style="width: 10px; height: 10px; border-radius: 50%; background: #2ED573; display: inline-block;"></span>
-                    <span>Novedad (New)</span>
+                    <span>{translate key="plugins.generic.issueSpotlight.bubble.new"}</span>
                 </div>
 
                 <div class="interactive-legend-item static" style="display: flex; align-items: center; gap: 8px; font-size: 0.9em;">
                     <span class="dot color-stable" style="width: 10px; height: 10px; border-radius: 50%; background: #1E90FF; display: inline-block;"></span>
-                    <span>Consolidado (Stable)</span>
+                    <span>{translate key="plugins.generic.issueSpotlight.bubble.stable"}</span>
                 </div>
             </div>
 
@@ -148,7 +143,7 @@
                 <!-- Column 1: STABLE -->
                 <div class="col-md-4" style="padding: 0 10px;">
                     <div style="background-color: #f0f8ff; border-top: 3px solid #1E90FF; padding: 10px; border-radius: 4px 4px 0 0; margin-bottom: 15px;">
-                        <h5 style="color: #1E90FF; text-transform: uppercase; margin: 0; font-weight: bold;">Consolidados</h5>
+                        <h5 style="color: #1E90FF; text-transform: uppercase; margin: 0; font-weight: bold;">{translate key="plugins.generic.issueSpotlight.title.stable"}</h5>
                     </div>
                     <div id="radarList_stable" style="display: flex; flex-direction: column; gap: 15px;"></div>
                 </div>
@@ -156,7 +151,7 @@
                 <!-- Column 2: RISING -->
                 <div class="col-md-4" style="padding: 0 10px;">
                     <div style="background-color: #fff0f1; border-top: 3px solid #FF4757; padding: 10px; border-radius: 4px 4px 0 0; margin-bottom: 15px;">
-                        <h5 style="color: #FF4757; text-transform: uppercase; margin: 0; font-weight: bold;">En Alza</h5>
+                        <h5 style="color: #FF4757; text-transform: uppercase; margin: 0; font-weight: bold;">{translate key="plugins.generic.issueSpotlight.title.rising"}</h5>
                     </div>
                     <div id="radarList_rising" style="display: flex; flex-direction: column; gap: 15px;"></div>
                 </div>
@@ -164,7 +159,7 @@
                 <!-- Column 3: NEW -->
                 <div class="col-md-4" style="padding: 0 10px;">
                      <div style="background-color: #f0fff4; border-top: 3px solid #2ED573; padding: 10px; border-radius: 4px 4px 0 0; margin-bottom: 15px;">
-                        <h5 style="color: #2ED573; text-transform: uppercase; margin: 0; font-weight: bold;">Novedades</h5>
+                        <h5 style="color: #2ED573; text-transform: uppercase; margin: 0; font-weight: bold;">{translate key="plugins.generic.issueSpotlight.title.new"}</h5>
                     </div>
                     <div id="radarList_new" style="display: flex; flex-direction: column; gap: 15px;"></div>
                 </div>
@@ -184,12 +179,12 @@
                 letter-spacing: 0.5px; 
                 border-bottom: 2px solid #eee; 
                 padding-bottom: 10px;
-            ">Impacto ODS</h4>
+            ">{translate key="plugins.generic.issueSpotlight.tab.ods"}</h4>
 
             <!-- Explanation Box -->
             <div class="pkp_notification" style="background:#f0f8ff; border: 1px solid #d1e6fa; border-left:4px solid #1E90FF; padding:15px; margin-bottom:20px; border-radius: 4px; font-size: 0.95em; color: #444;">
-                <strong style="color: #004d71;">Contribución a los Objetivos de Desarrollo Sostenible</strong><br>
-                Este gráfico muestra el porcentaje de alineación temática de los artículos publicados en este número con la Agenda 2030 de la ONU. Además, se detalla cada objetivo impactado con un breve análisis de su relevancia en la publicación.
+                <strong style="color: #004d71;">{translate key="plugins.generic.issueSpotlight.explanation.ods.title"}</strong><br>
+                {translate key="plugins.generic.issueSpotlight.explanation.ods.desc"}
             </div>
 
 		    <div style="background: #fafafa; padding: 20px; border-radius: 8px; border: 1px solid #eee;">
@@ -199,15 +194,13 @@
 			</div>
 
 			{* 2. ODS CARDS GRID *}
-			<h4 style="border-bottom: 2px solid #ddd; padding-bottom: 10px; margin-bottom: 20px; color: #444;">Detalle de Objetivos Impactados</h4>
+			<h4 style="border-bottom: 2px solid #ddd; padding-bottom: 10px; margin-bottom: 20px; color: #444;">{translate key="plugins.generic.issueSpotlight.ods.details"}</h4>
 			
 			{* Container for dynamic cards inserted via JS *}
 			<div id="odsCardsContainer" style="display: grid; grid-template-columns: 1fr; gap: 20px;">
-				{* JS will inject content here *}
 			</div>
 
 		</div>
-	</div>
 	</div>
 
 	{* GEO CONTENT (MAP) *}
@@ -221,12 +214,12 @@
                 letter-spacing: 0.5px; 
                 border-bottom: 2px solid #eee; 
                 padding-bottom: 10px;
-            ">Mapa Global de Colaboración</h4>
+            ">{translate key="plugins.generic.issueSpotlight.explanation.geo.title"}</h4>
             
             <!-- Explanation Box -->
             <div class="pkp_notification" style="background:#f0f8ff; border: 1px solid #d1e6fa; border-left:4px solid #1E90FF; padding:15px; margin-bottom:20px; border-radius: 4px; font-size: 0.95em; color: #444;">
-                <strong style="color: #004d71;">Alcance Internacional e Institucional</strong><br>
-                Este mapa visualiza el origen geográfico de los autores de este número. Los <strong>puntos</strong> representan las instituciones (el tamaño varía según el número de autores) y las <strong>líneas</strong> muestran las redes de colaboración transnacional que han hecho posible las investigaciones publicadas.
+                <strong style="color: #004d71;">{translate key="plugins.generic.issueSpotlight.explanation.geo.reach"}</strong><br>
+                {translate key="plugins.generic.issueSpotlight.explanation.geo.desc"}
             </div>
 
             <div style="background: #fafafa; padding: 10px; border-radius: 8px; border: 1px solid #eee;">
@@ -235,26 +228,26 @@
                 {* Legend for Map *}
                 <div style="display: flex; gap: 20px; justify-content: center; margin-top: 15px; font-size: 0.85em; color: #666; flex-wrap: wrap; border-bottom: 1px solid #eee; padding-bottom: 15px;">
                     <div style="display: flex; align-items: center; gap: 5px;">
-                        <span style="width: 12px; height: 12px; border-radius: 50%; background: rgba(30, 144, 255, 0.6); display: inline-block; border: 1px solid #1E90FF;"></span> Institución
+                        <span style="width: 12px; height: 12px; border-radius: 50%; background: rgba(30, 144, 255, 0.6); display: inline-block; border: 1px solid #1E90FF;"></span> {translate key="plugins.generic.issueSpotlight.geo.institution"}
                     </div>
                     <div style="display: flex; align-items: center; gap: 5px;">
-                        <span style="width: 20px; height: 3px; background: #FF4757; display: inline-block;"></span> Internacional
+                        <span style="width: 20px; height: 3px; background: #FF4757; display: inline-block;"></span> {translate key="plugins.generic.issueSpotlight.geo.international"}
                     </div>
                     <div style="display: flex; align-items: center; gap: 5px;">
-                        <span style="width: 20px; height: 3px; background: #666; display: inline-block;"></span> Nacional
+                        <span style="width: 20px; height: 3px; background: #666; display: inline-block;"></span> {translate key="plugins.generic.issueSpotlight.geo.national"}
                     </div>
                 </div>
 
                 {* Authors and Affiliations Table *}
                 <div style="margin-top: 30px; padding: 10px;">
-                    <h4 style="color: #006798; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 8px;">Listado de Autores y Afiliaciones</h4>
+                    <h4 style="color: #006798; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 8px;">{translate key="plugins.generic.issueSpotlight.geo.authorsTitle"}</h4>
                     <div style="overflow-x: auto;">
                         <table style="width: 100%; border-collapse: collapse; background: white; border: 1px solid #eee; font-size: 0.9em;">
                             <thead>
                                 <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6; text-align: left;">
-                                    <th style="padding: 12px; font-weight: 600; color: #495057;">Autor</th>
-                                    <th style="padding: 12px; font-weight: 600; color: #495057;">Afiliación</th>
-                                    <th style="padding: 12px; font-weight: 600; color: #495057;">Artículo</th>
+                                    <th style="padding: 12px; font-weight: 600; color: #495057;">{translate key="plugins.generic.issueSpotlight.geo.author"}</th>
+                                    <th style="padding: 12px; font-weight: 600; color: #495057;">{translate key="plugins.generic.issueSpotlight.geo.affiliation"}</th>
+                                    <th style="padding: 12px; font-weight: 600; color: #495057;">{translate key="plugins.generic.issueSpotlight.geo.article"}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -265,14 +258,14 @@
                                             {if $author.affiliation}
                                                 {$author.affiliation|escape}
                                             {else}
-                                                <span style="color: #ccc; font-style: italic;">Sin afiliación</span>
+                                                <span style="color: #ccc; font-style: italic;">{translate key="plugins.generic.issueSpotlight.geo.noAffiliation"}</span>
                                             {/if}
                                         </td>
                                         <td style="padding: 10px 12px; color: #006798; font-size: 0.85em;">{$author.article|escape}</td>
                                     </tr>
                                 {foreachelse}
                                     <tr>
-                                        <td colspan="3" style="padding: 20px; text-align: center; color: #999;">No hay datos de autores disponibles.</td>
+                                        <td colspan="3" style="padding: 20px; text-align: center; color: #999;">{translate key="plugins.generic.issueSpotlight.geo.noAuthors"}</td>
                                     </tr>
                                 {/foreach}
                             </tbody>
@@ -283,7 +276,7 @@
 	</div>
 
 	<div style="margin-top: 40px; text-align: center;">
-		<a href="{url page="issue" op="view" path=$issueId}" class="pkp_button">Volver al Número</a>
+		<a href="{url page="issue" op="view" path=$issueId}" class="pkp_button">{translate key="plugins.generic.issueSpotlight.backToIssue"}</a>
 	</div>
 </div>
 
@@ -399,20 +392,20 @@
 			},
 			plotOptions: {
 				packedbubble: {
-					minSize: '40%',
-					maxSize: '160%',
-					layoutAlgorithm: {
-						gravitationalConstant: 0.05,
-						splitSeries: false,
-						seriesInteraction: true,
-						dragBetweenSeries: false,
-						parentNodeLimit: true,
-						bubblePadding: 10, // Aumentamos el espacio para evitar solapamiento
-						enableSimulation: true,
-						initialAnimation: true,
-						maxIterations: 1000,
-						friction: -0.98
-					},
+						minSize: '45%',
+						maxSize: '200%',
+						layoutAlgorithm: {
+							gravitationalConstant: 0.002,
+							splitSeries: false,
+							seriesInteraction: true,
+							dragBetweenSeries: false,
+							parentNodeLimit: true,
+							bubblePadding: 5,
+							enableSimulation: true,
+							initialAnimation: true,
+							maxIterations: 2000,
+							friction: -0.98
+						},
 					dataLabels: {
 						enabled: true,
 						format: '{point.name}',

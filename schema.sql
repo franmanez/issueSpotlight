@@ -13,8 +13,6 @@ CREATE TABLE issue_ai_analysis (
     radar_analysis LONGTEXT,
     ods_analysis LONGTEXT,
     geo_analysis LONGTEXT,
-    global_seo_description TEXT,
-    tokens_consumed INT,
     date_generated DATETIME,
     UNIQUE KEY issue_ai_analysis_issue_id (issue_id)
 );

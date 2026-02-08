@@ -223,9 +223,36 @@ class IssueSpotlightPlugin extends GenericPlugin {
 				$request = Application::get()->getRequest();
 				$url = $request->url(null, 'issueSpotlight', 'view', $issue->getId());
 				
-				$btnHtml = '<div class="issue_spotlight_promo" style="float: right; margin: 10px 0 20px 20px; clear: right;">' .
-						   '<a href="' . $url . '" class="pkp_button" style="background: linear-gradient(135deg, #004e92 0%, #000428 100%); color: white; border: none; padding: 10px 20px; border-radius: 4px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); font-weight: bold; text-decoration: none;">' .
-						   ' ✨ IssueSpotlight: Ver análisis de IA</a></div>';
+				$btnHtml = '<div class="issue_spotlight_banner" style="' . 
+							'background: #f0f7fb; ' . 
+							'border: 1px solid #d1e6fa; ' . 
+							'border-left: 5px solid #006798; ' . 
+							'padding: 12px 20px; ' .
+							'margin: 20px 0 40px 0; ' . 
+							'border-radius: 4px; ' .
+							'display: flex; ' .
+							'justify-content: space-between; ' .
+							'align-items: center; ' .
+							'gap: 20px; ' .
+							'">' .
+								'<div style="flex: 1;">' .
+									'<h4 style="margin: 0; color: #006798; font-size: 1.05em; font-weight: 600;">✨ ' . __("plugins.generic.issueSpotlight.banner.title") . '</h4>' .
+								'</div>' .
+								'<a href="' . $url . '" class="pkp_button" style="' . 
+									'background: linear-gradient(135deg, #006798 0%, #111 100%); ' . 
+									'color: white !important; ' . 
+									'border: none; ' . 
+									'padding: 10px 22px; ' . 
+									'border-radius: 3px; ' . 
+									'font-weight: bold; ' . 
+									'text-decoration: none; ' . 
+									'white-space: nowrap; ' .
+									'display: inline-block;' .
+									'transition: all 0.3s ease;' .
+									'font-size: 0.95em;' .
+									'box-shadow: 0 4px 12px rgba(0,0,0,0.25);' .
+								'">🤖 ' . __("plugins.generic.issueSpotlight.banner.btn") . '</a>' .
+						   '</div>';
 				
 				// Estrategia de Inyección Multinivel
 				// 1. Después de la descripción (Ideal)

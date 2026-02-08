@@ -39,8 +39,6 @@ CREATE TABLE issue_ai_analysis (
     radar_analysis LONGTEXT,            -- JSON for bubble chart
     ods_analysis LONGTEXT,              -- JSON for SDG impact
     geo_analysis LONGTEXT,              -- JSON for Map (institutions + collaborations)
-    global_seo_description TEXT,        -- Metadata for search engines
-    tokens_consumed INT,                -- Tracking (optional)
     date_generated DATETIME,
     PRIMARY KEY (issue_id)
 );
@@ -50,8 +48,9 @@ CREATE TABLE issue_ai_analysis (
 
 ### 4.1. Innovation Radar (Highcharts)
 Replaced the old scatter plot with a **Packed Bubble Chart**.
-*   **Physics**: Custom gravity and friction settings to avoid overlap.
+*   **Physics**: Custom gravity and friction settings to maximize space utilization.
 *   **Logic**: AI groups concepts and assigns trends (`rising`, `new`, `stable`).
+*   **Optimization**: Configured `minSize`, `maxSize`, and `gravitationalConstant` to ensure bubbles fill the entire bounding box.
 
 ### 4.2. Global Map (Leaflet & AntPath)
 *   **Geocoding**: Gemini acts as a geocoder to normalize institution names and find coordinates.
@@ -64,7 +63,7 @@ Replaced the old scatter plot with a **Packed Bubble Chart**.
 The `IssueSpotlightGridHandler` implements a strict persistence logic ensuring that all 4 analysis blocks (Editorial, Radar, ODS, Geo) are saved together only if all API calls succeed, preventing inconsistent data states.
 
 ## 5. Integration with Gemini API
-*   **Model**: `gemini-2.0-flash-lite` (optimized for speed and JSON reliability).
+*   **Model**: `gemini-2.5-flash-lite` (optimized for speed and JSON reliability).
 *   **Prompts**: Specialized system instructions for each analysis type, ensuring strict JSON output when required.
 *   **Error Handling**: Real-time detection of API Quota limits, displaying clear red notifications in the UI.
 

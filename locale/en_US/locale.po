@@ -15,13 +15,13 @@ msgid "plugins.generic.issueSpotlight.displayName"
 msgstr "IssueSpotlight IA"
 
 msgid "plugins.generic.issueSpotlight.analysisTitle"
-msgstr "AI Analysis Workspace"
+msgstr "IssueSpotlight AI - intelligent issue analysis"
 
 msgid "plugins.generic.issueSpotlight.description"
 msgstr "Intelligent issue analysis via AI: editorial draft, innovation radar, SDG impact, and global collaboration map."
 
 msgid "plugins.generic.issueSpotlight.detailedDescription"
-msgstr "This module uses artificial intelligence to generate advanced analysis perspectives:<ul style=\"margin-top:5px; padding-left:20px;\"><li><strong>Editorial Summary:</strong> Automatic draft of an editorial summarizing key themes.</li><li><strong>Innovation Radar:</strong> Visual map of emerging and consolidated technological trends.</li><li><strong>SDG Impact:</strong> Assessment of thematic alignment with the UN Sustainable Development Goals.</li><li><strong>Global Map:</strong> Visualization of the geographical distribution of authors and international collaboration networks.</li></ul>"
+msgstr "This module presents advanced analysis perspectives obtained through artificial intelligence:<ul style=\"margin-top:5px; padding-left:20px;\"><li><strong>Editorial Summary:</strong> Automatic draft of an editorial summarizing key themes.</li><li><strong>Innovation Radar:</strong> Visual map of emerging and consolidated technological trends.</li><li><strong>SDG Impact:</strong> Assessment of thematic alignment with the UN Sustainable Development Goals.</li><li><strong>Global Map:</strong> Visualization of the geographical distribution of authors and international collaboration networks.</li></ul>"
 
 msgid "plugins.generic.issueSpotlight.settings"
 msgstr "Settings"
@@ -49,3 +49,105 @@ msgstr "No articles found in this issue."
 
 msgid "plugins.generic.issueSpotlight.errorAnalysis"
 msgstr "An error occurred while calling the AI service. Please check your API Key."
+
+msgid "plugins.generic.issueSpotlight.tab.editorial"
+msgstr "Editorial Summary"
+
+msgid "plugins.generic.issueSpotlight.tab.radar"
+msgstr "Innovation Radar"
+
+msgid "plugins.generic.issueSpotlight.tab.ods"
+msgstr "SDG Impact"
+
+msgid "plugins.generic.issueSpotlight.tab.geo"
+msgstr "Global Map"
+
+msgid "plugins.generic.issueSpotlight.backToIssue"
+msgstr "Back to Issue identification"
+
+msgid "plugins.generic.issueSpotlight.banner.title"
+msgstr "IssueSpotlight AI - intelligent issue analysis"
+
+msgid "plugins.generic.issueSpotlight.banner.btn"
+msgstr "View Analysis"
+
+msgid "plugins.generic.issueSpotlight.explanation.editorial.title"
+msgstr "Automatic Content Generation"
+
+msgid "plugins.generic.issueSpotlight.explanation.editorial.desc"
+msgstr "This editorial summary offers an overview of the topics addressed, prepared from the analysis of the titles and abstracts of the contributions in this issue."
+
+msgid "plugins.generic.issueSpotlight.explanation.ods.title"
+msgstr "Contribution to the Sustainable Development Goals"
+
+msgid "plugins.generic.issueSpotlight.explanation.ods.desc"
+msgstr "This chart shows the percentage of thematic alignment of the articles published in this issue with the UN 2030 Agenda. Additionally, each impacted goal is detailed with a brief analysis of its relevance in the publication."
+
+msgid "plugins.generic.issueSpotlight.explanation.radar.title"
+msgstr "How to interpret this chart?"
+
+msgid "plugins.generic.issueSpotlight.explanation.radar.desc"
+msgstr "This radar visualizes the key concepts extracted from the issue. The <strong>size</strong> of the bubbles indicates the volume of occurrences. The <strong>colors</strong> represent the detected trend: <span style=\"color:#FF4757; font-weight:bold;\">● Rising</span>, <span style=\"color:#2ED573; font-weight:bold;\">● New</span> and <span style=\"color:#1E90FF; font-weight:bold;\">● Stable</span>."
+
+msgid "plugins.generic.issueSpotlight.bubble.size"
+msgstr "Size"
+
+msgid "plugins.generic.issueSpotlight.bubble.volumen"
+msgstr "Volume of occurrences"
+
+msgid "plugins.generic.issueSpotlight.bubble.rising"
+msgstr "Rising"
+
+msgid "plugins.generic.issueSpotlight.bubble.new"
+msgstr "New"
+
+msgid "plugins.generic.issueSpotlight.bubble.stable"
+msgstr "Stable"
+
+msgid "plugins.generic.issueSpotlight.title.stable"
+msgstr "Stable"
+
+msgid "plugins.generic.issueSpotlight.title.rising"
+msgstr "Rising"
+
+msgid "plugins.generic.issueSpotlight.title.new"
+msgstr "New"
+
+msgid "plugins.generic.issueSpotlight.ods.details"
+msgstr "Detailed Impacted Goals"
+
+msgid "plugins.generic.issueSpotlight.explanation.geo.title"
+msgstr "Global Collaboration Map"
+
+msgid "plugins.generic.issueSpotlight.explanation.geo.reach"
+msgstr "International and Institutional Reach"
+
+msgid "plugins.generic.issueSpotlight.explanation.geo.desc"
+msgstr "This map visualizes the geographical origin of the authors of this issue. The <strong>points</strong> represent institutions (size varies according to the number of authors) and the <strong>lines</strong> show the transnational collaboration networks that have made the published research possible."
+
+msgid "plugins.generic.issueSpotlight.geo.institution"
+msgstr "Institution"
+
+msgid "plugins.generic.issueSpotlight.geo.international"
+msgstr "International"
+
+msgid "plugins.generic.issueSpotlight.geo.national"
+msgstr "National"
+
+msgid "plugins.generic.issueSpotlight.geo.authorsTitle"
+msgstr "List of Authors and Affiliations"
+
+msgid "plugins.generic.issueSpotlight.geo.author"
+msgstr "Author"
+
+msgid "plugins.generic.issueSpotlight.geo.affiliation"
+msgstr "Affiliation"
+
+msgid "plugins.generic.issueSpotlight.geo.article"
+msgstr "Article"
+
+msgid "plugins.generic.issueSpotlight.geo.noAffiliation"
+msgstr "No affiliation"
+
+msgid "plugins.generic.issueSpotlight.geo.noAuthors"
+msgstr "No author data available."

@@ -37,89 +37,96 @@ class IssueSpotlightGridHandler extends GridHandler {
 		$router = $request->getRouter();
 		
 		// URLs para acciones
-		$dummyUrl = $router->url($request, null, 'plugins.generic.issueSpotlight.controllers.grid.IssueSpotlightGridHandler', 'runAnalysisDummy', null, array('issueId' => $issue->getId()));
 		$realUrl = $router->url($request, null, 'plugins.generic.issueSpotlight.controllers.grid.IssueSpotlightGridHandler', 'runAnalysisReal', null, array('issueId' => $issue->getId()));
 
-		// Obtener artículos
+		// Comprobar si ya existe un análisis
+		$analysisExists = \Illuminate\Database\Capsule\Manager::table('issue_ai_analysis')
+			->where('issue_id', (int) $issue->getId())
+			->exists();
+
+		// Obtener artículos y autores
 		$submissionsIterator = Services::get('submission')->getMany([
 			'contextId' => $context->getId(),
 			'issueIds' => $issue->getId(),
 		]);
 		
-		$idsList = '<ul style="line-height: 1.6;">';
+		$articlesRows = '';
 		$authorsRows = '';
-		$count = 0;
+		$articleCount = 0;
+		$uniqueAuthors = [];
 
 		foreach ($submissionsIterator as $submission) {
-			// Title Logic
 			$publication = $submission->getCurrentPublication();
 			$title = $publication ? $publication->getLocalizedTitle() : $submission->getLocalizedTitle();
 			$titleStr = $title ? htmlspecialchars($title) : '<em>(Sin título)</em>';
 			
-			$idsList .= '<li><strong>ID ' . $submission->getId() . ':</strong> ' . $titleStr . '</li>';
+			$articlesRows .= '<tr><td style="padding:6px 10px; border-bottom:1px solid #eee; font-size: 0.9em;">' . $titleStr . '</td></tr>';
 			
-			// Authors Logic
 			if ($publication) {
 				$authors = $publication->getData('authors');
 				if ($authors) {
 					foreach ($authors as $author) {
+						$email = $author->getEmail();
+						if (!in_array($email, $uniqueAuthors)) {
+							$uniqueAuthors[] = $email;
+						}
 						$aff = $author->getLocalizedAffiliation();
 						$affStr = $aff ? htmlspecialchars($aff) : '<span style="color:#999">-</span>';
 						$authorsRows .= '<tr>
-							<td style="padding:5px;">' . htmlspecialchars($author->getFullName()) . '</td>
-							<td style="padding:5px;">' . $affStr . '</td>
-							<td style="padding:5px; font-size:0.85em; color:#666;">' . $titleStr . '</td>
+							<td style="padding:6px 10px; border-bottom:1px solid #eee; font-size: 0.9em; width: 40%;"><strong>' . htmlspecialchars($author->getFullName()) . '</strong></td>
+							<td style="padding:6px 10px; border-bottom:1px solid #eee; font-size: 0.9em; color:#666;">' . $affStr . '</td>
 						</tr>';
 					}
 				}
 			}
-			$count++;
+			$articleCount++;
 		}
-		$idsList .= '</ul>';
+		$totalAuthors = count($uniqueAuthors);
 
-		$authorsTable = '<table class="pkp_table" style="width:100%; border-collapse: collapse;">
-			<thead>
-				<tr style="background:#f0f0f0; border-bottom:1px solid #ddd; text-align:left;">
-					<th style="padding:8px;">Autor</th>
-					<th style="padding:8px;">Afiliación</th>
-					<th style="padding:8px;">Artículo</th>
-				</tr>
-			</thead>
-			<tbody>' . $authorsRows . '</tbody>
-		</table>';
+		// Tablas (ahora ocultas por defecto)
+		$articlesTable = '<table class="pkp_table" style="width:100%; border-collapse: collapse;"><tbody>' . $articlesRows . '</tbody></table>';
+		$authorsTable = '<table class="pkp_table" style="width:100%; border-collapse: collapse;"><tbody>' . $authorsRows . '</tbody></table>';
 
 		// Script JS unificado
 		$jsScript = "
 		<script>
+			function toggleDetails() {
+				var details = document.getElementById('details_container');
+				var btn = document.getElementById('btn_toggle_details');
+				if (details.style.display === 'none') {
+					details.style.display = 'block';
+					btn.innerHTML = 'Ocultar detalles ▲';
+				} else {
+					details.style.display = 'none';
+					btn.innerHTML = 'Ver detalles del contenido ▼';
+				}
+			}
+
 			function switchAnalysisTab(tabName) {
-				// Hide all
 				document.getElementById('tab_articles').style.display = 'none';
 				document.getElementById('tab_authors').style.display = 'none';
 				document.getElementById('btn_tab_articles').classList.remove('pkp_button_primary');
 				document.getElementById('btn_tab_authors').classList.remove('pkp_button_primary');
-				
-				// Show selected
 				document.getElementById('tab_' + tabName).style.display = 'block';
 				document.getElementById('btn_tab_' + tabName).classList.add('pkp_button_primary');
 			}
 
-			function triggerAnalysis(type) {
-				var btnId = type === 'real' ? 'btnRunReal' : 'btnRunDummy';
-				var url = type === 'real' ? '$realUrl' : '$dummyUrl';
+			function triggerAnalysis() {
+				var btnId = 'btnRunReal';
+				var url = '$realUrl';
 				var btn = document.getElementById(btnId);
 				var statusDiv = document.getElementById('analysisStatus');
 				
-				var originalText = btn.innerHTML;
 				btn.disabled = true;
-				btn.innerHTML = (type === 'real') ? 'Conectando con Gemini...' : 'Procesando inserción...';
-				statusDiv.innerHTML = '<div class=\"pkp_spinner\"></div> Procesando, por favor espera...';
+				btn.innerHTML = 'Analizando...';
+				statusDiv.innerHTML = '<div class=\"pkp_spinner\"></div> Procesando número con Gemini IA. Esto puede tardar unos segundos...';
 
 				$.ajax({
 					url: url,
 					dataType: 'json',
 					success: function(data) {
 						btn.disabled = false;
-						btn.innerHTML = originalText;
+						btn.innerHTML = 'REINICIAR ANÁLISIS CON IA';
 						if(data.status) {
 							statusDiv.innerHTML = '<div class=\"pkp_notification\" style=\"margin-top:10px; padding:15px; background:#e6fffa; border:1px solid #2c832c; color:#2c832c;\">' + data.content + '</div>';
 						} else {
@@ -128,43 +135,54 @@ class IssueSpotlightGridHandler extends GridHandler {
 					},
 					error: function(xhr, textStatus, errorThrown) {
 						btn.disabled = false;
-						btn.innerHTML = originalText;
+						btn.innerHTML = 'INTENTAR DE NUEVO';
 						statusDiv.innerHTML = '<div class=\"pkp_notification\" style=\"margin-top:10px; padding:15px; background:#ffe6e6; border:1px solid #d9534f; color:#d9534f;\"><strong>Error de red:</strong> ' + errorThrown + '</div>';
 					}
 				});
 			}
 		</script>";
 
-		// Construir el HTML de respuesta
-		$content = '<div style="padding: 20px;">' .
-			'<h3>Datos del Número</h3>' .
-			'<ul>' .
-			'<li><strong>ID Revista:</strong> ' . $context->getId() . '</li>' .
-			'<li><strong>ID Número:</strong> ' . $issue->getId() . '</li>' .
-			'<li><strong>Título:</strong> ' . $issue->getIssueIdentification() . '</li>' .
-			'</ul>' .
-			'<hr>' .
+		// Status UI
+		$statusHtml = $analysisExists 
+			? '<div style="background: #f0fdf4; color: #166534; padding: 10px; border-radius: 6px; border: 1px solid #bbf7d0; margin-bottom: 20px; font-size: 0.9em; display: flex; align-items: center; gap: 8px;">' .
+			  '<span style="font-size: 1.2em;">✅</span> Este número ya cuenta con un análisis de IA generado.</div>'
+			: '<div style="background: #fffbeb; color: #92400e; padding: 10px; border-radius: 6px; border: 1px solid #fde68a; margin-bottom: 20px; font-size: 0.9em; display: flex; align-items: center; gap: 8px;">' .
+			  '<span style="font-size: 1.2em;">⏳</span> Este número está pendiente de análisis inicial.</div>';
+
+		// Main Content
+		$content = '<div style="padding: 10px 20px; font-family: sans-serif;">' .
+			'<h3 style="margin-bottom:10px; color:#006798;">' . $issue->getIssueIdentification() . '</h3>' .
+			$statusHtml .
 			
-			// Tab Buttons
-			'<div style="margin-bottom: 15px;">' .
-				'<button id="btn_tab_articles" class="pkp_button pkp_button_primary" onclick="switchAnalysisTab(\'articles\')">Artículos (' . $count . ')</button> ' .
-				'<button id="btn_tab_authors" class="pkp_button" onclick="switchAnalysisTab(\'authors\')">Autores y Afiliaciones</button>' .
+			'<div style="background: #f9fafb; border: 1px solid #eee; border-radius: 8px; padding: 20px; margin-bottom: 20px;">' .
+				'<h4 style="margin: 0 0 15px 0; font-size: 1rem; color: #374151;">Resumen de contenidos interactuables:</h4>' .
+				'<div style="display: flex; gap: 40px; margin-bottom: 15px;">' .
+					'<div><span style="font-size: 2rem; display: block; margin-bottom: 5px;">📄</span> <strong>' . $articleCount . '</strong> Artículos</div>' .
+					'<div><span style="font-size: 2rem; display: block; margin-bottom: 5px;">👥</span> <strong>' . $totalAuthors . '</strong> Autores únicos</div>' .
+				'</div>' .
+				'<p style="font-size: 0.9rem; color: #6b7280; line-height: 1.5; margin: 0;">' .
+					'Al iniciar el proceso, la IA analizará los títulos, resúmenes y afiliaciones para generar automáticamente el borrador editorial, el radar de innovación, el impacto ODS y el mapa de colaboración.' .
+				'</p>' .
 			'</div>' .
 
-			// Tab Content: Articles
-			'<div id="tab_articles">' .
-				$idsList .
+			'<div style="text-align: right; margin-bottom: 10px;">' .
+				'<a href="#" id="btn_toggle_details" onclick="toggleDetails(); return false;" style="color: #006798; font-size: 0.85rem; text-decoration: none; font-weight: 600;">Ver detalles del contenido ▼</a>' .
+			'</div>' .
+			
+			'<div id="details_container" style="display: none; border: 1px solid #ddd; border-radius: 4px; background:#fff; margin-bottom: 20px;">' .
+				'<div style="padding: 10px; background: #f8f9fa; border-bottom: 1px solid #ddd; display: flex; gap: 5px;">' .
+					'<button id="btn_tab_articles" class="pkp_button pkp_button_primary" style="font-size:0.8rem;" onclick="switchAnalysisTab(\'articles\')">Artículos</button> ' .
+					'<button id="btn_tab_authors" class="pkp_button" style="font-size:0.8rem;" onclick="switchAnalysisTab(\'authors\')">Autores</button>' .
+				'</div>' .
+				'<div id="tab_articles" style="max-height: 200px; overflow-y: auto;">' . $articlesTable . '</div>' .
+				'<div id="tab_authors" style="display:none; max-height: 200px; overflow-y: auto;">' . $authorsTable . '</div>' .
 			'</div>' .
 
-			// Tab Content: Authors
-			'<div id="tab_authors" style="display:none; max-height: 400px; overflow-y: auto; border: 1px solid #eee;">' .
-				$authorsTable .
-			'</div>' .
-
-			'<div style="margin-top: 20px; text-align: center; border-top: 1px solid #eee; padding-top: 20px;">' .
-			'<button id="btnRunDummy" class="pkp_button" style="margin-right: 10px;" onclick="triggerAnalysis(\'dummy\')">Test DB (Dummy)</button>' .
-			'<button id="btnRunReal" class="pkp_button pkp_button_primary" onclick="triggerAnalysis(\'real\')">Análisis REAL (Gemini)</button>' .
-			'<div id="analysisStatus" style="margin-top: 15px;"></div>' .
+			'<div style="margin-top: 25px; text-align: center; border-top: 1px solid #eee; padding-top: 25px;">' .
+				'<button id="btnRunReal" class="pkp_button pkp_button_primary" style="padding: 10px 25px; font-weight: 600; font-size: 0.95rem;" onclick="triggerAnalysis()">' . 
+					($analysisExists ? 'VOLVER A GENERAR ANÁLISIS' : 'INICIAR ANÁLISIS CON IA') . 
+				'</button>' .
+				'<div id="analysisStatus" style="margin-top: 20px;"></div>' .
 			'</div>' .
 			$jsScript .
 			'</div>';
@@ -253,16 +271,19 @@ class IssueSpotlightGridHandler extends GridHandler {
 		if (!$radarJson) $radarJson = [];
 		
 		// Prompt Editorial
-		$editorialHtml = $this->_callGemini($apiKey, "Actúa como Editor Jefe. Escribe una editorial corta (max 200 palabras) en HTML (usando <p>, <h3>, <ul>). Agrupa los artículos por temáticas comunes y destaca tendencias. Sé profesional y académico.", $payload);
+		$promptEditorial = "Actúa como Editor Jefe. Escribe una editorial corta (max 200 palabras) en HTML (usando <p>, <h3>, <ul>). Agrupa los artículos por temáticas comunes y destaca tendencias. Sé profesional y académico.";
+		$editorialHtml = $this->_callGemini($apiKey, $promptEditorial, $payload);
 		if (strpos($editorialHtml, 'ERROR:') !== false) return new JSONMessage(false, $editorialHtml);
 
-		// Prompt SEO Description
-		$seoDescription = $this->_callGemini($apiKey, "Genera una meta-descripción SEO (máximo 160 caracteres) que resuma los temas principales de este número para buscadores. Debe ser atractiva y profesional. Devuelve solo el texto plano.", $payload);
-		if (strpos($seoDescription, 'ERROR:') !== false) return new JSONMessage(false, $seoDescription);
-		
 		// Prompt ODS (Objetivos de Desarrollo Sostenible)
 		$promptODS = "Analiza el contenido de los artículos y determina su contribución a los Objetivos de Desarrollo Sostenible (ODS) de la ONU.
 		Distribuye un total de 100% entre los ODS más relevantes (mínimo 3, máximo 6).
+		Utiliza estrictamente esta tabla de colores oficiales hex para cada ODS:
+		ODS 1: #E5243B, ODS 2: #DDA63A, ODS 3: #4C9F38, ODS 4: #C5192D, ODS 5: #FF3A21, 
+		ODS 6: #26BDE2, ODS 7: #FCC30B, ODS 8: #A21942, ODS 9: #FD6925, ODS 10: #DD1367, 
+		ODS 11: #FD9D24, ODS 12: #BF8B2E, ODS 13: #3F7E44, ODS 14: #0A97D9, ODS 15: #56C02B, 
+		ODS 16: #00689D, ODS 17: #19486A.
+		
 		Devuelve SOLAMENTE un JSON array válido con este formato:
 		[{\"ods\": 4, \"name\": \"Educación de Calidad\", \"percentage\": 30, \"color\": \"#C5192D\", \"reasoning\": \"Breve justificación de 1 frase explicando por qué aplica (menciona temas clave)\"}, ...]";
 
@@ -324,8 +345,7 @@ class IssueSpotlightGridHandler extends GridHandler {
 			'editorial' => $editorialHtml,
 			'radar'     => json_encode($radarJson, JSON_UNESCAPED_UNICODE),
 			'ods'       => json_encode($odsJson, JSON_UNESCAPED_UNICODE),
-			'geo'       => json_encode($geoJson, JSON_UNESCAPED_UNICODE),
-			'seo'       => $seoDescription
+			'geo'       => json_encode($geoJson, JSON_UNESCAPED_UNICODE)
 		];
 
 		$this->_persistAnalysisData(
@@ -333,8 +353,7 @@ class IssueSpotlightGridHandler extends GridHandler {
 			$dataToPersist['editorial'], 
 			$dataToPersist['radar'], 
 			$dataToPersist['ods'], 
-			$dataToPersist['geo'], 
-			$dataToPersist['seo']
+			$dataToPersist['geo']
 		);
 
 		return new JSONMessage(true, "<strong>¡Análisis Completado!</strong> Los datos reales de Gemini se han guardado correctamente (incluyendo Mapa y ODS) para el número " . $issue->getIssueIdentification());
@@ -343,7 +362,7 @@ class IssueSpotlightGridHandler extends GridHandler {
 	/**
 	 * Helper: Persistir datos
 	 */
-	private function _persistAnalysisData($issueId, $editorial, $radar, $ods, $geo, $seo) {
+	private function _persistAnalysisData($issueId, $editorial, $radar, $ods, $geo) {
 		$dao = new DAO();
 		$result = $dao->retrieve('SELECT count(*) as c FROM issue_ai_analysis WHERE issue_id = ?', [(int)$issueId]);
 		$row = (object) $result->current();
@@ -351,7 +370,7 @@ class IssueSpotlightGridHandler extends GridHandler {
 
 		// Log para depuración extrema
 		error_log("IssueSpotlight Debug: Persistiendo ID " . $issueId);
-		error_log("IssueSpotlight Debug: SEO text: " . substr($seo, 0, 100));
+		error_log("IssueSpotlight Debug: Persistiendo ID " . $issueId);
 		error_log("IssueSpotlight Debug: GEO JSON: " . substr($geo, 0, 100));
 
 		if ($row && isset($row->c) && $row->c > 0) {
@@ -361,17 +380,16 @@ class IssueSpotlightGridHandler extends GridHandler {
 				     radar_analysis = ?, 
 				     ods_analysis = ?, 
 				     geo_analysis = ?, 
-				     global_seo_description = ?, 
 				     date_generated = ? 
 				 WHERE issue_id = ?',
-				[$editorial, $radar, $ods, $geo, $seo, $date, (int)$issueId]
+				[$editorial, $radar, $ods, $geo, $date, (int)$issueId]
 			);
 		} else {
 			$dao->update(
 				'INSERT INTO issue_ai_analysis 
-				 (issue_id, editorial_draft, radar_analysis, ods_analysis, geo_analysis, global_seo_description, date_generated) 
-				 VALUES (?, ?, ?, ?, ?, ?, ?)',
-				[(int)$issueId, $editorial, $radar, $ods, $geo, $seo, $date]
+				 (issue_id, editorial_draft, radar_analysis, ods_analysis, geo_analysis, date_generated) 
+				 VALUES (?, ?, ?, ?, ?, ?)',
+				[(int)$issueId, $editorial, $radar, $ods, $geo, $date]
 			);
 		}
 	}
