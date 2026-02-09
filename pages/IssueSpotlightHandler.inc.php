@@ -1,4 +1,18 @@
 <?php
+/**
+ * @file plugins/generic/issueSpotlight/pages/IssueSpotlightHandler.inc.php
+ *
+ * Copyright (c) 2026 UPC - Universitat Politècnica de Catalunya
+ * Author: Fran Máñez <fran.upc@gmail.com>, <francisco.manez@upc.edu>
+ * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
+ *
+ * @class IssueSpotlightHandler
+ * @ingroup plugins_generic_issueSpotlight
+ *
+ * @brief Frontend page handler. Serves the public-facing AI analysis dashboard with
+ *        interactive visualizations (Innovation Radar, SDG charts, and institutional maps).
+ */
+
 import('classes.handler.Handler');
 import('lib.pkp.classes.db.DAO');
 
@@ -43,11 +57,21 @@ class IssueSpotlightHandler extends Handler {
 
 		// Fetch Analysis Data
 		$dao = new DAO();
-		$result = $dao->retrieve('SELECT * FROM issue_ai_analysis WHERE issue_id = ?', [$issueId]);
+		$currentLocale = AppLocale::getLocale();
+		$result = $dao->retrieve(
+			'SELECT * FROM issue_ai_analysis WHERE issue_id = ? AND locale = ?',
+			[$issueId, $currentLocale]
+		);
 		$analysisData = (object) $result->current();
 
 		if (!$analysisData || !isset($analysisData->issue_id)) {
-			// If no analysis exists, redirect back to issue page
+			// Fallback: try to find any existing analysis for this issue if the current locale is missing
+			$result = $dao->retrieve('SELECT * FROM issue_ai_analysis WHERE issue_id = ? LIMIT 1', [$issueId]);
+			$analysisData = (object) $result->current();
+		}
+
+		if (!$analysisData || !isset($analysisData->issue_id)) {
+			// If no analysis exists at all, redirect back to issue page
 			$request->redirect(null, 'issue', 'view', $issueId);
 		}
 

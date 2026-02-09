@@ -2,11 +2,14 @@
 /**
  * @file plugins/generic/issueSpotlight/classes/IssueSpotlightService.inc.php
  *
- * Copyright (c) 2026 UPC
+ * Copyright (c) 2026 UPC - Universitat Politècnica de Catalunya
+ * Author: Fran Máñez <fran.upc@gmail.com>, <francisco.manez@upc.edu>
  * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
  *
  * @class IssueSpotlightService
- * @brief Service class for AI analysis.
+ * @ingroup plugins_generic_issueSpotlight
+ *
+ * @brief Service layer for AI analysis operations and data retrieval.
  */
 
 class IssueSpotlightService {

@@ -9,10 +9,11 @@
 
 CREATE TABLE issue_ai_analysis (
     issue_id BIGINT NOT NULL,
+    locale VARCHAR(14) NOT NULL,
     editorial_draft LONGTEXT,
     radar_analysis LONGTEXT,
     ods_analysis LONGTEXT,
     geo_analysis LONGTEXT,
     date_generated DATETIME,
-    UNIQUE KEY issue_ai_analysis_issue_id (issue_id)
+    UNIQUE KEY issue_ai_analysis_issue_id_locale (issue_id, locale)
 );

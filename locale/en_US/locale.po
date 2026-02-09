@@ -18,10 +18,10 @@ msgid "plugins.generic.issueSpotlight.analysisTitle"
 msgstr "IssueSpotlight AI - intelligent issue analysis"
 
 msgid "plugins.generic.issueSpotlight.description"
-msgstr "Intelligent issue analysis via AI: editorial draft, innovation radar, SDG impact, and global collaboration map."
+msgstr "Intelligent issue analysis via AI: editorial draft, innovation radar, SDG impact, and global map of authors."
 
 msgid "plugins.generic.issueSpotlight.detailedDescription"
-msgstr "This module presents advanced analysis perspectives obtained through artificial intelligence:<ul style=\"margin-top:5px; padding-left:20px;\"><li><strong>Editorial Summary:</strong> Automatic draft of an editorial summarizing key themes.</li><li><strong>Innovation Radar:</strong> Visual map of emerging and consolidated technological trends.</li><li><strong>SDG Impact:</strong> Assessment of thematic alignment with the UN Sustainable Development Goals.</li><li><strong>Global Map:</strong> Visualization of the geographical distribution of authors and international collaboration networks.</li></ul>"
+msgstr "This module presents advanced analysis perspectives obtained through artificial intelligence:<ul style=\"margin-top:5px; padding-left:20px;\"><li><strong>Editorial Summary:</strong> Automatic draft of an editorial summarizing key themes.</li><li><strong>Innovation Radar:</strong> Visual map of emerging and consolidated technological trends.</li><li><strong>SDG Impact:</strong> Assessment of thematic alignment with the UN Sustainable Development Goals.</li><li><strong>Global Map:</strong> Visualization of the geographical distribution of authors and represented institutions.</li></ul>"
 
 msgid "plugins.generic.issueSpotlight.settings"
 msgstr "Settings"
@@ -30,7 +30,7 @@ msgid "plugins.generic.issueSpotlight.settings.apiKey"
 msgstr "Gemini API Key"
 
 msgid "plugins.generic.issueSpotlight.settings.apiKeyDescription"
-msgstr "Enter your Google Gemini API Key (Gemini 2.0 Flash Lite recommended)."
+msgstr "In order for the plugin to work, an access key for Google's artificial intelligence (Gemini) is required. This key enables the automatic analysis of titles and abstracts to generate the editorial, radar, SDGs, and institutional map.<br><br><strong>Consumption and Limits:</strong> Each complete issue analysis makes 4 calls to the Gemini LLM. The Gemini free plan allows a maximum of 20 daily requests.<br><br><strong>How to obtain the key:</strong><br>1. Go to <a href=\"https://aistudio.google.com/\" target=\"_blank\">Google AI Studio</a>.<br>2. Click on 'Get API key'.<br>3. Click on 'Create API key'.<br>4. Copy the key (it has a format similar to: <code>AIzaSyC3xY9mN2pQ7rT8vU1wX4zK6jL5hM9nO0p</code>) and paste it here.<br><br><strong>How to run the analysis:</strong><br>Once the key is configured, go to <strong>Issues</strong> in the backend, click on the dropdown arrow for the issue you want to analyze and select the <strong>IssueSpotlight IA</strong> link to run the intelligent analysis."
 
 msgid "plugins.generic.issueSpotlight.settings.apiKeyRequired"
 msgstr "The API key is required."
@@ -123,7 +123,7 @@ msgid "plugins.generic.issueSpotlight.explanation.geo.reach"
 msgstr "International and Institutional Reach"
 
 msgid "plugins.generic.issueSpotlight.explanation.geo.desc"
-msgstr "This map visualizes the geographical origin of the authors of this issue. The <strong>points</strong> represent institutions (size varies according to the number of authors) and the <strong>lines</strong> show the transnational collaboration networks that have made the published research possible."
+msgstr "This map visualizes the geographical origin of the authors of this issue. The <strong>points</strong> represent the institutions linked to the published research, where the size of each marker indicates the density of authors belonging to that institution."
 
 msgid "plugins.generic.issueSpotlight.geo.institution"
 msgstr "Institution"
@@ -151,3 +151,9 @@ msgstr "No affiliation"
 
 msgid "plugins.generic.issueSpotlight.geo.noAuthors"
 msgstr "No author data available."
+
+msgid "plugins.generic.issueSpotlight.analysisProcessDescription"
+msgstr "Upon starting the process, the AI will analyze titles, abstracts, and affiliations to automatically generate the editorial draft, innovation radar, SDG impact, and institutional map. <br><br><strong>Note:</strong> This process consumes 4 calls to the Gemini LLM (the free plan allows up to 20 daily). You can regenerate the analysis at any time to update results."
+
+msgid "plugins.generic.issueSpotlight.analysisCompleted"
+msgstr "<strong>Analysis Completed!</strong> The AI-generated data has been successfully saved for issue {$issueId}."

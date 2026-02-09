@@ -18,10 +18,10 @@ msgid "plugins.generic.issueSpotlight.analysisTitle"
 msgstr "IssueSpotlight AI - anàlisi intel·ligent de números"
 
 msgid "plugins.generic.issueSpotlight.description"
-msgstr "Anàlisi intel·ligent de números mitjançant IA: editorial, radar d'innovació, impacte ODS i mapa global de col·laboració."
+msgstr "Anàlisi intel·ligent de números mitjançant IA: editorial, radar d'innovació, impacte ODS i mapa global d'autors."
 
 msgid "plugins.generic.issueSpotlight.detailedDescription"
-msgstr "Aquest mòdul presenta perspectives d'anàlisi avançades obtingudes mitjançant intel·ligència artificial:<ul style=\"margin-top:5px; padding-left:20px;\"><li><strong>Resum editorial:</strong> Generació automàtica d'un esborrany editorial sintetitzant els temes clau.</li><li><strong>Radar d'Innovació:</strong> Mapa visual de tendències tecnològiques emergents i consolidades.</li><li><strong>Impacte ODS:</strong> Avaluació de l'alineació temàtica amb els Objectius de Desenvolupament Sostenible.</li><li><strong>Mapa Global:</strong> Visualització de la distribució geogràfica d'autors i xarxes internacionals de col·laboració.</li></ul>"
+msgstr "Aquest mòdul presenta perspectives d'anàlisi avançades obtingudes mitjançant intel·ligència artificial:<ul style=\"margin-top:5px; padding-left:20px;\"><li><strong>Resum editorial:</strong> Generació automàtica d'un esborrany editorial sintetitzant els temes clau.</li><li><strong>Radar d'Innovación:</strong> Mapa visual de tendències tecnològiques emergents i consolidades.</li><li><strong>Impacte ODS:</strong> Avaluació de l'alineació temàtica amb els Objectius de Desenvolupament Sostenible.</li><li><strong>Mapa Global:</strong> Visualització de la distribució geogràfica d'autors i institucions representades.</li></ul>"
 
 msgid "plugins.generic.issueSpotlight.settings"
 msgstr "Configuració"
@@ -30,7 +30,7 @@ msgid "plugins.generic.issueSpotlight.settings.apiKey"
 msgstr "Clau API de Gemini"
 
 msgid "plugins.generic.issueSpotlight.settings.apiKeyDescription"
-msgstr "Introdueix la teva clau API de Google Gemini (es recomana Gemini 2.0 Flash Lite)."
+msgstr "Perquè el plugin funcioni, cal una clau d'accés a la intel·ligència artificial de Google (Gemini). Aquesta clau permet fer l'anàlisi automàtica de títols i resums per generar l'editorial, el radar, els ODS i el mapa institucional.<br><br><strong>Consum i Límits:</strong> Cada anàlisi completa d'un número fa 4 trucades a l'LLM de Gemini. El pla gratuït de Gemini permet un màxim de 20 consultes diàries.<br><br><strong>Com obtenir la clau:</strong><br>1. Accedeix a <a href=\"https://aistudio.google.com/\" target=\"_blank\">Google AI Studio</a>.<br>2. Fes clic a 'Get API key'.<br>3. Prem a 'Create API key'.<br>4. Copia la clau (té un format similar a: <code>AIzaSyC3xY9mN2pQ7rT8vU1wX4zK6jL5hM9nO0p</code>) i enganxa-la aquí.<br><br><strong>Com executar l'anàlisi:</strong><br>Un cop configurada la clau, ves a <strong>Números</strong> al backend, fes clic a la fletxeta del número que vols analitzar i selecciona l'enllaç <strong>IssueSpotlight IA</strong> per executar l'anàlisi intel·ligent."
 
 msgid "plugins.generic.issueSpotlight.settings.apiKeyRequired"
 msgstr "La clau API és obligatòria."
@@ -123,7 +123,7 @@ msgid "plugins.generic.issueSpotlight.explanation.geo.reach"
 msgstr "Abast Internacional i Institucional"
 
 msgid "plugins.generic.issueSpotlight.explanation.geo.desc"
-msgstr "Aquest mapa visualitza l'origen geogràfic dels autors d'aquest número. Els <strong>punts</strong> representen les institucions (la mida varia segons el nombre d'autors) i les <strong>línies</strong> mostren les xarxes de col·laboració transnacional que han fet possible les investigacions publicades."
+msgstr "Aquest mapa visualitza l'origen geogràfic dels autors d'aquest número. Els <strong>punts</strong> representen les institucions vinculades a les investigacions publicades, on la mida de cada marcador indica la densitat d'autors que pertanyen a aquesta institució."
 
 msgid "plugins.generic.issueSpotlight.geo.institution"
 msgstr "Institució"
@@ -151,3 +151,9 @@ msgstr "Sense afiliació"
 
 msgid "plugins.generic.issueSpotlight.geo.noAuthors"
 msgstr "No hi ha dades d'autors disponibles."
+
+msgid "plugins.generic.issueSpotlight.analysisProcessDescription"
+msgstr "En iniciar el procés, la IA analitzarà els títols, resums i afiliacions per generar automàticament l'esborrany editorial, el radar d'innovació, l'impacte ODS i el mapa d'institucions. <br><br><strong>Nota:</strong> Aquest procés consumeix 4 trucades a l'LLM de Gemini (el pla gratuït permet fins a 20 diàries). Pots regenerar l'anàlisi en qualsevol moment per actualitzar els resultats."
+
+msgid "plugins.generic.issueSpotlight.analysisCompleted"
+msgstr "<strong>Anàlisi Completada!</strong> Les dades generades per la IA s'han desat correctament per al número {$issueId}."

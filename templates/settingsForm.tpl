@@ -1,10 +1,11 @@
 {**
  * plugins/generic/issueSpotlight/templates/settingsForm.tpl
  *
- * Copyright (c) 2026 UPC
+ * Copyright (c) 2026 UPC - Universitat Politècnica de Catalunya
+ * Author: Fran Máñez <fran.upc@gmail.com>, <francisco.manez@upc.edu>
  * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
  *
- * Form for plugin settings.
+ * Plugin settings form for Google Gemini API key configuration.
  *}
 <script>
 	$(function() {ldelim}
@@ -20,7 +21,11 @@
 	<div id="issueSpotlightSettings">
 		{fbvFormArea id="settings" title="plugins.generic.issueSpotlight.settings"}
 			{fbvFormSection}
-				{fbvElement type="text" id="apiKey" value=$apiKey label="plugins.generic.issueSpotlight.settings.apiKey" description="plugins.generic.issueSpotlight.settings.apiKeyDescription"}
+				{fbvElement type="text" id="apiKey" value=$apiKey label="plugins.generic.issueSpotlight.settings.apiKey"}
+                <br>
+				<span class="instruction">
+                    {translate key="plugins.generic.issueSpotlight.settings.apiKeyDescription"}
+                </span>
 			{/fbvFormSection}
 		{/fbvFormArea}
 

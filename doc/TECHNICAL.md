@@ -35,12 +35,13 @@ The plugin uses a table named `issue_ai_analysis` to store analysis results.
 ```sql
 CREATE TABLE issue_ai_analysis (
     issue_id BIGINT NOT NULL,
+    locale VARCHAR(14) NOT NULL,        -- locale code (e.g., es_ES, en_US)
     editorial_draft LONGTEXT,           -- HTML content for editorial
     radar_analysis LONGTEXT,            -- JSON for bubble chart
     ods_analysis LONGTEXT,              -- JSON for SDG impact
     geo_analysis LONGTEXT,              -- JSON for Map (institutions + collaborations)
     date_generated DATETIME,
-    PRIMARY KEY (issue_id)
+    PRIMARY KEY (issue_id, locale)
 );
 ```
 
@@ -48,24 +49,55 @@ CREATE TABLE issue_ai_analysis (
 
 ### 4.1. Innovation Radar (Highcharts)
 Replaced the old scatter plot with a **Packed Bubble Chart**.
+*   **Specificity Rules**: The AI is strictly instructed to avoid generic terms (e.g., "Design", "Analysis") and prioritize bigrams or trigrams that define a specific niche (e.g., "Speculative Design").
 *   **Physics**: Custom gravity and friction settings to maximize space utilization.
-*   **Logic**: AI groups concepts and assigns trends (`rising`, `new`, `stable`).
-*   **Optimization**: Configured `minSize`, `maxSize`, and `gravitationalConstant` to ensure bubbles fill the entire bounding box.
+*   **Logic**: AI groups concepts and assigns trends (`rising`, `new`, `stable`) based on their contextual weight.
+*   **Normalization**: Synonyms are grouped under the most technical term discovered.
 
-### 4.2. Global Map (Leaflet & AntPath)
-*   **Geocoding**: Gemini acts as a geocoder to normalize institution names and find coordinates.
+### 4.2. Global Map (Leaflet)
+*   **Geocoding**: Gemini acts as a geocoder to normalize institution names and find approximate coordinates.
 *   **Visualization**:
-    *   **Bezier Curves**: Collaboration lines are rendered as animated paths.
+    *   **Institutional Markers**: Renders institutions as circle markers.
+    *   **Proportional Size**: Marker radius scales based on the number of authors (`count`).
     *   **Spiral Jittering**: Prevents overlapping markers when multiple institutions share the same coordinates.
-    *   **Interactive Layers**: Tooltips on markers and lines showing institution names and collaboration types.
+*   **Simplified Logic**: Collaboration lines/networks were removed to focus on institutional density and avoid inconsistencies in AI-detected links.
 
-### 4.3. Data Persistence (The UPSERT pattern)
-The `IssueSpotlightGridHandler` implements a strict persistence logic ensuring that all 4 analysis blocks (Editorial, Radar, ODS, Geo) are saved together only if all API calls succeed, preventing inconsistent data states.
+### 4.3. Data Persistence (Multilingual UPSERT)
+The `IssueSpotlightGridHandler` requests analysis for all active journal locales in a single LLM call per block. It stores one record per locale, ensuring the frontend displays the correct translation based on the user's selected language.
 
-## 5. Integration with Gemini API
+## 5. Detailed AI Prompts Logic
+
+The plugin leverages specialized prompts for each analysis dimension:
+
+### 5.1. Prompt Radar (Knowledge Discovery)
+*   **Goal**: Extract high-value academic concepts.
+*   **Rules**: 
+    1.  **Specificity**: Mandatory use of 2-3 word concepts.
+    2.  **Exclusion**: Forbidden generic terms list.
+    3.  **Trend Logic**: 'new' (emergency), 'rising' (growing relevance), 'stable' (foundational method/tech).
+*   **Output**: Multilingual JSON object keyed by locale.
+
+### 5.2. Prompt Editorial (Synthesis)
+*   **Persona**: Acts as "Editor-in-Chief".
+*   **Goal**: Narrative synthesis of the issue.
+*   **Format**: Direct HTML (`<h3>`, `<p>`, `<ul>`).
+*   **Output**: Multilingual JSON object with localized HTML drafts.
+
+### 5.3. Prompt ODS (Alignment)
+*   **Goal**: Map research to UN Sustainable Development Goals.
+*   **Constraint**: Strict use of official hex colors and numbering.
+*   **Logic**: Distribute 100% impact among top 3-6 relevant goals with qualitative reasoning.
+
+### 5.4. Prompt Geo (Geographical Normalization)
+*   **Goal**: Clean affiliation data and geolocate.
+*   **Logic**: Normalizes variations (e.g., "UPC" -> "Universitat Politècnica de Catalunya") and assigns City/Country/Coords.
+*   **Note**: All references to collaboration links have been deprecated in favor of institutional distribution accuracy.
+
+## 6. Integration with Gemini API
 *   **Model**: `gemini-2.5-flash-lite` (optimized for speed and JSON reliability).
-*   **Prompts**: Specialized system instructions for each analysis type, ensuring strict JSON output when required.
-*   **Error Handling**: Real-time detection of API Quota limits, displaying clear red notifications in the UI.
+*   **Security**: Payloads are truncated to 30,000 characters to stay within safety limits while maintaining context.
+*   **Architecture**: Each full issue analysis is orchestrated in **4 sequential Gemini LLM calls** (Editorial, Radar, ODS, and Geo/Institutions).
+*   **Error Handling**: Real-time detection of API Quota limits, displaying clear red notifications in the UI. 
 
-## 6. Frontend Extension
-The `IssueSpotlightHandler` fetches not only the AI results but also queries OJS core tables to provide a "Real-time Authors Directory" in the Global Map tab, merging AI-generated insights with official metadata.
+## 7. Frontend Extension
+The `IssueSpotlightHandler` fetches the localized AI results and merges them with OJS core metadata (Authors directory) to provide a rich, interactive dashboard.

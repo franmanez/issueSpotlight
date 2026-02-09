@@ -2,11 +2,14 @@
 /**
  * @file plugins/generic/issueSpotlight/classes/IssueSpotlightSettingsForm.inc.php
  *
- * Copyright (c) 2026 UPC
+ * Copyright (c) 2026 UPC - Universitat Politècnica de Catalunya
+ * Author: Fran Máñez <fran.upc@gmail.com>, <francisco.manez@upc.edu>
  * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
  *
  * @class IssueSpotlightSettingsForm
- * @brief Form for plugin settings.
+ * @ingroup plugins_generic_issueSpotlight
+ *
+ * @brief Settings form for plugin configuration. Manages Google Gemini API key storage and validation.
  */
 
 import('lib.pkp.classes.form.Form');

@@ -18,10 +18,10 @@ msgid "plugins.generic.issueSpotlight.analysisTitle"
 msgstr "IssueSpotlight AI - análisis inteligente de números"
 
 msgid "plugins.generic.issueSpotlight.description"
-msgstr "Análisis inteligente de números mediante IA: editorial, radar de innovación, impacto ODS y mapa global de colaboración."
+msgstr "Análisis inteligente de números mediante IA: editorial, radar de innovación, impacto ODS y mapa global de autores."
 
 msgid "plugins.generic.issueSpotlight.detailedDescription"
-msgstr "Este módulo presenta perspectivas de análisis avanzadas obtenidas mediante inteligencia artificial:<ul style=\"margin-top:5px; padding-left:20px;\"><li><strong>Resumen editorial:</strong> Generación automática de un borrador editorial sintetizando los temas clave.</li><li><strong>Radar de Innovación:</strong> Mapa visual de tendencias tecnológicas emergentes y consolidadas.</li><li><strong>Impacto ODS:</strong> Evaluación de la alineación temática con los Objetivos de Desarrollo Sostenible.</li><li><strong>Mapa Global:</strong> Visualización de la distribución geográfica de autores y redes internacionales de colaboración.</li></ul>"
+msgstr "Este módulo presenta perspectivas de análisis avanzadas obtenidas mediante inteligencia artificial:<ul style=\"margin-top:5px; padding-left:20px;\"><li><strong>Resumen editorial:</strong> Generación automática de un borrador editorial sintetizando los temas clave.</li><li><strong>Radar de Innovación:</strong> Mapa visual de tendencias tecnológicas emergentes y consolidadas.</li><li><strong>Impacto ODS:</strong> Evaluación de la alineación temática con los Objetivos de Desarrollo Sostenible.</li><li><strong>Mapa Global:</strong> Visualización de la distribución geográfica de autores e instituciones representadas.</li></ul>"
 
 msgid "plugins.generic.issueSpotlight.settings"
 msgstr "Configuración"
@@ -30,7 +30,7 @@ msgid "plugins.generic.issueSpotlight.settings.apiKey"
 msgstr "Clave API de Gemini"
 
 msgid "plugins.generic.issueSpotlight.settings.apiKeyDescription"
-msgstr "Introduce tu clave API de Google Gemini (se recomienda Gemini 2.0 Flash Lite)."
+msgstr "Para que el plugin funcione, es necesaria una clave de acceso a la inteligencia artificial de Google (Gemini). Esta clave permite realizar el análisis automático de títulos y resúmenes para generar la editorial, el radar, los ODS y el mapa institucional.<br><br><strong>Consumo y Límites:</strong> Cada análisis completo de un número realiza 4 llamadas al LLM de Gemini. El plan gratuito de Gemini permite un máximo de 20 consultas diarias.<br><br><strong>Cómo obtener la clave:</strong><br>1. Accede a <a href=\"https://aistudio.google.com/\" target=\"_blank\">Google AI Studio</a>.<br>2. Haz clic en 'Get API key'.<br>3. Pulsa en 'Create API key'.<br>4. Copia la clave (tiene un formato similar a: <code>AIzaSyC3xY9mN2pQ7rT8vU1wX4zK6jL5hM9nO0p</code>) y pégala aquí.<br><br><strong>Cómo ejecutar el análisis:</strong><br>Una vez configurada la clave, ve a <strong>Números</strong> en el backend, haz clic en la flechita del número que deseas analizar y selecciona el enlace <strong>IssueSpotlight IA</strong> para ejecutar el análisis inteligente."
 
 msgid "plugins.generic.issueSpotlight.settings.apiKeyRequired"
 msgstr "La clave API es obligatoria."
@@ -123,7 +123,7 @@ msgid "plugins.generic.issueSpotlight.explanation.geo.reach"
 msgstr "Alcance Internacional e Institucional"
 
 msgid "plugins.generic.issueSpotlight.explanation.geo.desc"
-msgstr "Este mapa visualiza el origen geográfico de los autores de este número. Los <strong>puntos</strong> representan las instituciones (el tamaño varía según el número de autores) y las <strong>líneas</strong> muestran las redes de colaboración transnacional que han hecho posible las investigaciones publicadas."
+msgstr "Este mapa visualiza el origen geográfico de los autores de este número. Los <strong>puntos</strong> representan las instituciones vinculadas a las investigaciones publicadas, donde el tamaño de cada marcador indica la densidad de autores pertenecientes a dicha institución."
 
 msgid "plugins.generic.issueSpotlight.geo.institution"
 msgstr "Institución"
@@ -151,3 +151,9 @@ msgstr "Sin afiliación"
 
 msgid "plugins.generic.issueSpotlight.geo.noAuthors"
 msgstr "No hay datos de autores disponibles."
+
+msgid "plugins.generic.issueSpotlight.analysisProcessDescription"
+msgstr "Al iniciar el proceso, la IA analizará los títulos, resúmenes y afiliaciones para generar automáticamente el borrador editorial, el radar de innovación, el impacto ODS y el mapa de instituciones. <br><br><strong>Nota:</strong> Este proceso consume 4 llamadas al LLM de Gemini (el plan gratuito permite hasta 20 diarias). Puedes regenerar el análisis en cualquier momento para actualizar los resultados."
+
+msgid "plugins.generic.issueSpotlight.analysisCompleted"
+msgstr "<strong>¡Análisis Completado!</strong> Los datos generados por la IA se han guardado correctamente para el número {$issueId}."

@@ -1,10 +1,11 @@
 {**
  * plugins/generic/issueSpotlight/templates/analysis.tpl
  *
- * Copyright (c) 2026 UPC
+ * Copyright (c) 2026 UPC - Universitat Politècnica de Catalunya
+ * Author: Fran Máñez <fran.upc@gmail.com>, <francisco.manez@upc.edu>
  * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
  *
- * Analysis results view with TOC inclusion.
+ * Backend modal template for AI analysis execution and results display.
  *}
 <style>
     /* Ocultar acciones de edición/borrado en el grid de TOC dentro de nuestra modal */

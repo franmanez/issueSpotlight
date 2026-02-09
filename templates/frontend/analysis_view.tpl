@@ -1,6 +1,12 @@
 {**
- * templates/frontend/analysis_view.tpl
- * Public view for AI Analysis
+ * plugins/generic/issueSpotlight/templates/frontend/analysis_view.tpl
+ *
+ * Copyright (c) 2026 UPC - Universitat Politècnica de Catalunya
+ * Author: Fran Máñez <fran.upc@gmail.com>, <francisco.manez@upc.edu>
+ * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
+ *
+ * Public-facing AI analysis dashboard with interactive visualizations (Innovation Radar,
+ * SDG impact charts, institutional maps, and automated editorial synthesis).
  *}
 {include file="frontend/components/header.tpl" pageTitle="plugins.generic.issueSpotlight.analysisTitle"}
 
@@ -229,12 +235,6 @@
                 <div style="display: flex; gap: 20px; justify-content: center; margin-top: 15px; font-size: 0.85em; color: #666; flex-wrap: wrap; border-bottom: 1px solid #eee; padding-bottom: 15px;">
                     <div style="display: flex; align-items: center; gap: 5px;">
                         <span style="width: 12px; height: 12px; border-radius: 50%; background: rgba(30, 144, 255, 0.6); display: inline-block; border: 1px solid #1E90FF;"></span> {translate key="plugins.generic.issueSpotlight.geo.institution"}
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 5px;">
-                        <span style="width: 20px; height: 3px; background: #FF4757; display: inline-block;"></span> {translate key="plugins.generic.issueSpotlight.geo.international"}
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 5px;">
-                        <span style="width: 20px; height: 3px; background: #666; display: inline-block;"></span> {translate key="plugins.generic.issueSpotlight.geo.national"}
                     </div>
                 </div>
 
@@ -609,27 +609,6 @@
         // --- GEO LOGIC: LEAFLET MAP ---
         if (geoData && geoData.institutions && geoData.institutions.length > 0) {
             
-            // Helper: Curved points for collaborations
-            function getCurvePoints(start, end, pointsCount = 30) {
-                const lat1 = start[0], lng1 = start[1];
-                const lat2 = end[0], lng2 = end[1];
-                const midLat = (lat1 + lat2) / 2;
-                const midLng = (lng1 + lng2) / 2;
-                const dist = Math.sqrt(Math.pow(lat2-lat1,2) + Math.pow(lng2-lng1,2));
-                const offset = dist * 0.15; // Curviness factor
-                const theta = Math.atan2(lat2 - lat1, lng2 - lng1);
-                const cLat = midLat + offset * Math.cos(theta + Math.PI/2);
-                const cLng = midLng + offset * Math.sin(theta + Math.PI/2);
-                const points = [];
-                for (let i = 0; i <= pointsCount; i++) {
-                    const t = i / pointsCount;
-                    const lat = Math.pow(1-t,2)*lat1 + 2*(1-t)*t*cLat + Math.pow(t,2)*lat2;
-                    const lng = Math.pow(1-t,2)*lng1 + 2*(1-t)*t*cLng + Math.pow(t,2)*lng2;
-                    points.push([lat, lng]);
-                }
-                return points;
-            }
-
             // Initialize Map with zoom and navigation enabled
             window.geoMap = L.map('geoAnalysisMap', {
                 scrollWheelZoom: true,
@@ -689,38 +668,6 @@
                     </div>
                 `);
             });
-
-            // Collaboration Lines (Curved)
-            if (geoData.collaborations && geoData.collaborations.length > 0) {
-                geoData.collaborations.forEach(collab => {
-                    // Try to use the jittered coordinates from instCoords first
-                    let start = instCoords[collab.from_name];
-                    let end = instCoords[collab.to_name];
-                    
-                    // Fallback to raw coords if name matching fails
-                    if (!start) start = [collab.from_lat, collab.from_lng];
-                    if (!end) end = [collab.to_lat, collab.to_lng];
-                    
-                    if (!start[0] || !end[0]) return;
-
-                    const curvePoints = getCurvePoints(start, end);
-                    const isInternational = collab.type === 'international';
-                    const color = isInternational ? '#FF4757' : '#666';
-
-                    const antPath = L.polyline.antPath(curvePoints, {
-                        delay: isInternational ? 3000 : 5000,
-                        dashArray: [10, 20],
-                        weight: isInternational ? 3 : 1.5,
-                        color: color,
-                        pulseColor: '#FFFFFF',
-                        opacity: 0.7
-                    }).addTo(window.geoMap);
-
-                    // Detailed Tooltip (Sticky)
-                    const label = `<strong>Colaboración ${isInternational ? 'Internacional' : 'Nacional'}</strong><br>${collab.from_name} ⟷ ${collab.to_name}`;
-                    antPath.bindTooltip(label, { sticky: true, html: true });
-                });
-            }
 
             // Fit map to markers
             const markerArray = [];

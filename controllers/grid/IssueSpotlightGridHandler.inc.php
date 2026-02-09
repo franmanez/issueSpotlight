@@ -1,4 +1,18 @@
 <?php
+/**
+ * @file plugins/generic/issueSpotlight/controllers/grid/IssueSpotlightGridHandler.inc.php
+ *
+ * Copyright (c) 2026 UPC - Universitat Politècnica de Catalunya
+ * Author: Fran Máñez <fran.upc@gmail.com>, <francisco.manez@upc.edu>
+ * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
+ *
+ * @class IssueSpotlightGridHandler
+ * @ingroup plugins_generic_issueSpotlight
+ *
+ * @brief Backend handler for AI analysis execution. Manages API calls to Google Gemini,
+ *        processes multilingual prompts, and persists analysis results to the database.
+ */
+
 import('lib.pkp.classes.controllers.grid.GridHandler');
 import('lib.pkp.classes.db.DAO');
 import('lib.pkp.classes.core.Core');
@@ -161,7 +175,7 @@ class IssueSpotlightGridHandler extends GridHandler {
 					'<div><span style="font-size: 2rem; display: block; margin-bottom: 5px;">👥</span> <strong>' . $totalAuthors . '</strong> Autores únicos</div>' .
 				'</div>' .
 				'<p style="font-size: 0.9rem; color: #6b7280; line-height: 1.5; margin: 0;">' .
-					'Al iniciar el proceso, la IA analizará los títulos, resúmenes y afiliaciones para generar automáticamente el borrador editorial, el radar de innovación, el impacto ODS y el mapa de colaboración.' .
+					__('plugins.generic.issueSpotlight.analysisProcessDescription') .
 				'</p>' .
 			'</div>' .
 
@@ -207,12 +221,13 @@ class IssueSpotlightGridHandler extends GridHandler {
 		}
 		$randomTitle = !empty($titles) ? $titles[array_rand($titles)] : "Sin artículos";
 		
-		$this->_persistAnalysisData($issue->getId(), 
+		$this->_persistAnalysisData(
+			$issue->getId(), 
+			AppLocale::getLocale(),
 			"<h3>Editorial Dummy</h3><p>Prueba con: $randomTitle</p>", 
 			json_encode([['tag' => 'DummyTag', 'count' => 10, 'trend' => 'stable']]), 
 			json_encode([['ods' => 4, 'name' => 'Educación', 'percentage' => 100, 'color' => '#C5192D', 'reasoning' => 'Test']]),
-			json_encode(['institutions' => [], 'collaborations' => []]),
-			"Descripción SEO Dummy"
+			json_encode(['institutions' => []])
 		);
 
 		return new JSONMessage(true, "<strong>Test OK!</strong> Datos dummy guardados usando: <em>$randomTitle</em>");
@@ -248,34 +263,61 @@ class IssueSpotlightGridHandler extends GridHandler {
 			return new JSONMessage(false, "El número no tiene artículos con contenido válido para analizar.");
 		}
 
+		// List of supported locales for this journal
+		$supportedLocales = $context->getSupportedLocales();
+		$localesList = implode(', ', $supportedLocales);
+
 		// 3. Llamadas a Gemini (Secuenciales)
-		// Prompt 2: Radar de Innovación (Tags + Count + Trend)
+		// Prompt 2: Radar de Innovación (Tags + Count + Trend) en multidioma (Refined for specificity)
 		$promptRadar = "Analiza la siguiente lista de Títulos y Resúmenes de artículos académicos de un número de revista.
         Extrae los conceptos tecnológicos, metodológicos o teóricos más relevantes.
-        Para cada concepto:
-        1. Normaliza el nombre (ej: 'AI', 'Inteligencia Artificial' -> 'AI').
-        2. Cuenta su frecuencia de aparición en los artículos (estimada).
-        3. Determina su tendencia ('trend') basándote en el enfoque de los artículos:
-           - 'new': Si se presenta como novedad, innovación o emergente.
-           - 'rising': Si se menciona como tendencia creciente o muy relevante.
-           - 'stable': Si es una tecnología/método base, comparativa o estándar.
         
-        Devuelve SOLAMENTE un JSON array válido con los 20-30 conceptos más importantes:
-        [{\"tag\": \"Concepto\", \"count\": 5, \"trend\": \"rising\"}, ...]";
+        REGLAS DE ESPECIFICIDAD:
+        1. BIGRAMAS Y TRIGRAMAS: Evita términos de una sola palabra (ej. 'Diseño', 'Educación'). Prioriza conceptos compuestos de 2 o 3 palabras que definan el nicho (ej. 'Diseño Especulativo', 'Educación Híbrida'). Es decir, que se centre en el Problema-Solución o Método-Contexto. Ej: \"Cada concepto debe representar una intersección clara. En lugar de Sostenibilidad, usa Sostenibilidad Urbana o Materiales Bio-basados.\"
+        2. TÉRMINOS PROHIBIDOS: No utilices conceptos genéricos como: Tecnología, Innovación, Análisis, Diseño, Desarrollo, Investigación, Estudio, Ciencia, Sistema, Método, Aplicación, Resultado, Datos.
+        3. NORMALIZACIÓN: Une sinónimos bajo el término más técnico.
+        
+        Para cada concepto:
+        - Cuenta su frecuencia estimada. Cuenta su frecuencia de aparición en los artículos (estimada).
+        - Determina su tendencia ('trend'): 'new', 'rising', 'stable' según su impacto en el texto.
+		 - 'new': Si se presenta como novedad, innovación o emergente.
+		 - 'rising': Si se menciona como tendencia creciente o muy relevante.
+		 - 'stable': Si es una tecnología/método base, comparativa o estándar.
+        
+        Devuelve la respuesta en estos idiomas: {$localesList}.
+        IMPORTANTE: Devuelve SOLAMENTE un objeto JSON válido donde las claves sean los códigos de idioma ({$localesList}) y el valor sea un array con los 20-30 conceptos más importantes:
+        {
+            \"es_ES\": [{\"tag\": \"IA Generativa\", \"count\": 5, \"trend\": \"rising\"}, ...],
+            \"en_US\": [{\"tag\": \"Generative AI\", \"count\": 5, \"trend\": \"rising\"}, ...],
+            ...
+        }";
 
 		$radarContentRaw = $this->_callGemini($apiKey, $promptRadar, $payload);
 		if (strpos($radarContentRaw, 'ERROR:') !== false) return new JSONMessage(false, $radarContentRaw);
 
 		$radarContent = preg_replace('/```json|```/', '', $radarContentRaw);
-		$radarJson = json_decode($radarContent, true);
-		if (!$radarJson) $radarJson = [];
+		$radarContent = trim(preg_replace('/^[^{]*|[^}]*$/', '', $radarContent)); // Clean JSON
+		$radarMultilang = json_decode($radarContent, true);
+		if (!$radarMultilang) $radarMultilang = [];
 		
-		// Prompt Editorial
-		$promptEditorial = "Actúa como Editor Jefe. Escribe una editorial corta (max 200 palabras) en HTML (usando <p>, <h3>, <ul>). Agrupa los artículos por temáticas comunes y destaca tendencias. Sé profesional y académico.";
-		$editorialHtml = $this->_callGemini($apiKey, $promptEditorial, $payload);
-		if (strpos($editorialHtml, 'ERROR:') !== false) return new JSONMessage(false, $editorialHtml);
+		// Prompt Editorial en multidioma
+		$promptEditorial = "Actúa como Editor Jefe. Escribe una editorial corta (max 250 palabras) en HTML (usando <p>, <h3>, <ul>). Agrupa los artículos por temáticas comunes y destaca tendencias. Sé profesional y académico.
+        Devuelve la respuesta en estos idiomas: {$localesList}.
+        IMPORTANTE: Devuelve SOLAMENTE un objeto JSON válido donde las claves sean los códigos de idioma ({$localesList}) y el valor sea el texto HTML generado para ese idioma:
+        {
+            \"es_ES\": \"<p>Contenido en español...</p>\",
+            \"en_US\": \"<p>English content...</p>\",
+            ...
+        }";
+		$editorialContentRaw = $this->_callGemini($apiKey, $promptEditorial, $payload);
+		if (strpos($editorialContentRaw, 'ERROR:') !== false) return new JSONMessage(false, $editorialContentRaw);
 
-		// Prompt ODS (Objetivos de Desarrollo Sostenible)
+		$editorialContent = preg_replace('/```json|```/', '', $editorialContentRaw);
+		$editorialContent = trim(preg_replace('/^[^{]*|[^}]*$/', '', $editorialContent)); // Clean JSON
+		$editorialMultilang = json_decode($editorialContent, true);
+		if (!$editorialMultilang) $editorialMultilang = [];
+
+		// Prompt ODS en multidioma
 		$promptODS = "Analiza el contenido de los artículos y determina su contribución a los Objetivos de Desarrollo Sostenible (ODS) de la ONU.
 		Distribuye un total de 100% entre los ODS más relevantes (mínimo 3, máximo 6).
 		Utiliza estrictamente esta tabla de colores oficiales hex para cada ODS:
@@ -284,15 +326,21 @@ class IssueSpotlightGridHandler extends GridHandler {
 		ODS 11: #FD9D24, ODS 12: #BF8B2E, ODS 13: #3F7E44, ODS 14: #0A97D9, ODS 15: #56C02B, 
 		ODS 16: #00689D, ODS 17: #19486A.
 		
-		Devuelve SOLAMENTE un JSON array válido con este formato:
-		[{\"ods\": 4, \"name\": \"Educación de Calidad\", \"percentage\": 30, \"color\": \"#C5192D\", \"reasoning\": \"Breve justificación de 1 frase explicando por qué aplica (menciona temas clave)\"}, ...]";
+		Devuelve la respuesta en estos idiomas: {$localesList}.
+        IMPORTANTE: Devuelve SOLAMENTE un objeto JSON válido donde las claves sean los códigos de idioma ({$localesList}) y el valor sea un array de ODS con este formato:
+		{
+            \"es_ES\": [{\"ods\": 4, \"name\": \"Educación\", \"percentage\": 30, \"color\": \"#C5192D\", \"reasoning\": \"...\"}, ...],
+            \"en_US\": [{\"ods\": 4, \"name\": \"Quality Education\", \"percentage\": 30, \"color\": \"#C5192D\", \"reasoning\": \"...\"}, ...],
+            ...
+        }";
 
 		$odsContentRaw = $this->_callGemini($apiKey, $promptODS, $payload);
 		if (strpos($odsContentRaw, 'ERROR:') !== false) return new JSONMessage(false, $odsContentRaw);
 
 		$odsContent = preg_replace('/```json|```/', '', $odsContentRaw);
-		$odsJson = json_decode($odsContent, true);
-		if (!$odsJson) $odsJson = [];
+		$odsContent = trim(preg_replace('/^[^{]*|[^}]*$/', '', $odsContent)); // Clean JSON
+		$odsMultilang = json_decode($odsContent, true);
+		if (!$odsMultilang) $odsMultilang = [];
 
 		// --- GEO-ANALYSIS (RESTORING PREVIOUS LOGIC) ---
 		$affiliations = [];
@@ -316,18 +364,14 @@ class IssueSpotlightGridHandler extends GridHandler {
 		} else {
 			$affPayload = implode("\n", $uniqueAffiliations);
 
-			$promptGeo = "Actúa como un experto en geografía institucional y bibliometría.
+			$promptGeo = "Actúa como un experto en geología institucional y bibliometría.
 			Analiza la siguiente lista de afiliaciones de autores.
 			1. Normaliza las instituciones (ej: 'UPC' -> 'Universitat Politècnica de Catalunya').
 			2. Para cada institución única, encuentra su Ciudad, País y Coordenadas aproximadas (Latitud y Longitud).
-			3. Identifica colaboraciones internacionales o nacionales probables entre estas instituciones.
-			4. Devuelve SOLAMENTE un JSON con este formato exacto:
+			3. Devuelve SOLAMENTE un JSON con este formato exacto:
 			{
 				\"institutions\": [
 					{\"name\": \"Nombre Real\", \"city\": \"Ciudad\", \"country\": \"País\", \"lat\": 0.0, \"lng\": 0.0, \"count\": número_de_autores}
-				],
-				\"collaborations\": [
-					{\"from_name\": \"Nombre Inst 1\", \"to_name\": \"Nombre Inst 2\", \"from_lat\": 0, \"from_lng\": 0, \"to_lat\": 0, \"to_lng\": 0, \"type\": \"international|national\"}
 				]
 			}";
 
@@ -340,38 +384,32 @@ class IssueSpotlightGridHandler extends GridHandler {
 			if (!$geoJson) $geoJson = ['institutions' => [], 'collaborations' => []];
 		}
 
-		// 4. Guardar en Base de Datos de forma explícita
-		$dataToPersist = [
-			'editorial' => $editorialHtml,
-			'radar'     => json_encode($radarJson, JSON_UNESCAPED_UNICODE),
-			'ods'       => json_encode($odsJson, JSON_UNESCAPED_UNICODE),
-			'geo'       => json_encode($geoJson, JSON_UNESCAPED_UNICODE)
-		];
+		// 4. Guardar en Base de Datos para cada idioma
+		foreach ($supportedLocales as $locale) {
+			$this->_persistAnalysisData(
+				$issue->getId(), 
+				$locale,
+				$editorialMultilang[$locale] ?? '', 
+				json_encode($radarMultilang[$locale] ?? [], JSON_UNESCAPED_UNICODE), 
+				json_encode($odsMultilang[$locale] ?? [], JSON_UNESCAPED_UNICODE), 
+				json_encode($geoJson, JSON_UNESCAPED_UNICODE) // Geo is the same for all (normalized)
+			);
+		}
 
-		$this->_persistAnalysisData(
-			$issue->getId(), 
-			$dataToPersist['editorial'], 
-			$dataToPersist['radar'], 
-			$dataToPersist['ods'], 
-			$dataToPersist['geo']
-		);
-
-		return new JSONMessage(true, "<strong>¡Análisis Completado!</strong> Los datos reales de Gemini se han guardado correctamente (incluyendo Mapa y ODS) para el número " . $issue->getIssueIdentification());
+		return new JSONMessage(true, __('plugins.generic.issueSpotlight.analysisCompleted', array('issueId' => $issue->getIssueIdentification())));
 	}
 
 	/**
-	 * Helper: Persistir datos
+	 * Helper: Persistir datos por idioma
 	 */
-	private function _persistAnalysisData($issueId, $editorial, $radar, $ods, $geo) {
+	private function _persistAnalysisData($issueId, $locale, $editorial, $radar, $ods, $geo) {
 		$dao = new DAO();
-		$result = $dao->retrieve('SELECT count(*) as c FROM issue_ai_analysis WHERE issue_id = ?', [(int)$issueId]);
+		$result = $dao->retrieve(
+			'SELECT count(*) as c FROM issue_ai_analysis WHERE issue_id = ? AND locale = ?',
+			[(int)$issueId, $locale]
+		);
 		$row = (object) $result->current();
 		$date = Core::getCurrentDate();
-
-		// Log para depuración extrema
-		error_log("IssueSpotlight Debug: Persistiendo ID " . $issueId);
-		error_log("IssueSpotlight Debug: Persistiendo ID " . $issueId);
-		error_log("IssueSpotlight Debug: GEO JSON: " . substr($geo, 0, 100));
 
 		if ($row && isset($row->c) && $row->c > 0) {
 			$dao->update(
@@ -381,15 +419,15 @@ class IssueSpotlightGridHandler extends GridHandler {
 				     ods_analysis = ?, 
 				     geo_analysis = ?, 
 				     date_generated = ? 
-				 WHERE issue_id = ?',
-				[$editorial, $radar, $ods, $geo, $date, (int)$issueId]
+				 WHERE issue_id = ? AND locale = ?',
+				[$editorial, $radar, $ods, $geo, $date, (int)$issueId, $locale]
 			);
 		} else {
 			$dao->update(
 				'INSERT INTO issue_ai_analysis 
-				 (issue_id, editorial_draft, radar_analysis, ods_analysis, geo_analysis, date_generated) 
-				 VALUES (?, ?, ?, ?, ?, ?)',
-				[(int)$issueId, $editorial, $radar, $ods, $geo, $date]
+				 (issue_id, locale, editorial_draft, radar_analysis, ods_analysis, geo_analysis, date_generated) 
+				 VALUES (?, ?, ?, ?, ?, ?, ?)',
+				[(int)$issueId, $locale, $editorial, $radar, $ods, $geo, $date]
 			);
 		}
 	}
