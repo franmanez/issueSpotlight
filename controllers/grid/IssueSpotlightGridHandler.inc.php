@@ -201,6 +201,8 @@ class IssueSpotlightGridHandler extends GridHandler {
 			$jsScript .
 			'</div>';
 
+		// Limpiamos cualquier buffer de salida (como Notices de OJS) para asegurar JSON válido
+		if (ob_get_length()) ob_clean();
 		return new JSONMessage(true, $content);
 	}
 
@@ -230,6 +232,7 @@ class IssueSpotlightGridHandler extends GridHandler {
 			json_encode(['institutions' => []])
 		);
 
+		if (ob_get_length()) ob_clean();
 		return new JSONMessage(true, "<strong>Test OK!</strong> Datos dummy guardados usando: <em>$randomTitle</em>");
 	}
 
@@ -246,7 +249,8 @@ class IssueSpotlightGridHandler extends GridHandler {
 		$apiKey = $pluginSettingsDao->getSetting($contextId, 'issuespotlightplugin', 'apiKey');
 
 		if (!$apiKey) {
-			return new JSONMessage(false, "No se encontró la API Key en la configuración del plugin.");
+			if (ob_get_length()) ob_clean();
+			return new JSONMessage(false, "Falta la API Key de Gemini en los ajustes del plugin.");
 		}
 
 		// 2. Construir Payload
@@ -260,12 +264,13 @@ class IssueSpotlightGridHandler extends GridHandler {
 		}
 
 		if (empty(trim($payload))) {
+			if (ob_get_length()) ob_clean();
 			return new JSONMessage(false, "El número no tiene artículos con contenido válido para analizar.");
 		}
 
-		// List of supported locales for this journal
+		// Use only the primary locale for the analysis to save tokens and prevent truncations
+		$primaryLocale = $context->getPrimaryLocale();
 		$supportedLocales = $context->getSupportedLocales();
-		$localesList = implode(', ', $supportedLocales);
 
 		// 3. Llamadas a Gemini (Secuenciales)
 		// Prompt 2: Radar de Innovación (Tags + Count + Trend) en multidioma (Refined for specificity)
@@ -284,38 +289,47 @@ class IssueSpotlightGridHandler extends GridHandler {
 		 - 'rising': Si se menciona como tendencia creciente o muy relevante.
 		 - 'stable': Si es una tecnología/método base, comparativa o estándar.
         
-        Devuelve la respuesta en estos idiomas: {$localesList}.
-        IMPORTANTE: Devuelve SOLAMENTE un objeto JSON válido donde las claves sean los códigos de idioma ({$localesList}) y el valor sea un array con los 20-30 conceptos más importantes:
-        {
-            \"es_ES\": [{\"tag\": \"IA Generativa\", \"count\": 5, \"trend\": \"rising\"}, ...],
-            \"en_US\": [{\"tag\": \"Generative AI\", \"count\": 5, \"trend\": \"rising\"}, ...],
-            ...
-        }";
+        Devuelve la respuesta SOLAMENTE en el idioma: {$primaryLocale}.
+        IMPORTANTE: Devuelve SOLAMENTE un array JSON válido con los 30 conceptos más importantes (No menos de 25 y no más de 30) con este formato exacto:
+        [{\"tag\": \"Concepto 1\", \"count\": 5, \"trend\": \"rising\"}, {\"tag\": \"Concepto 2\", \"count\": 3, \"trend\": \"new\"}, ...]
+        ";
 
 		$radarContentRaw = $this->_callGemini($apiKey, $promptRadar, $payload);
-		if (strpos($radarContentRaw, 'ERROR:') !== false) return new JSONMessage(false, $radarContentRaw);
+		if (strpos($radarContentRaw, 'ERROR:') !== false) {
+			if (ob_get_length()) ob_clean();
+			return new JSONMessage(false, $radarContentRaw);
+		}
 
 		$radarContent = preg_replace('/```json|```/', '', $radarContentRaw);
-		$radarContent = trim(preg_replace('/^[^{]*|[^}]*$/', '', $radarContent)); // Clean JSON
-		$radarMultilang = json_decode($radarContent, true);
-		if (!$radarMultilang) $radarMultilang = [];
+		$radarContent = trim(preg_replace('/^[^\{\[]*|[^\}\]]*$/s', '', $radarContent)); 
+		$radarData = json_decode($radarContent, true);
+		
+		// If the AI returned an object with locale keys instead of a flat array, pick the relevant one
+		if (is_array($radarData) && !isset($radarData[0])) {
+			if (isset($radarData[$primaryLocale])) {
+				$radarData = $radarData[$primaryLocale];
+			} else {
+				// Fallback: pick the first element if it's an array
+				$firstVal = reset($radarData);
+				if (is_array($firstVal)) $radarData = $firstVal;
+			}
+		}
+		if (!$radarData || !is_array($radarData)) $radarData = [];
 		
 		// Prompt Editorial en multidioma
 		$promptEditorial = "Actúa como Editor Jefe. Escribe una editorial corta (max 250 palabras) en HTML (usando <p>, <h3>, <ul>). Agrupa los artículos por temáticas comunes y destaca tendencias. Sé profesional y académico.
-        Devuelve la respuesta en estos idiomas: {$localesList}.
-        IMPORTANTE: Devuelve SOLAMENTE un objeto JSON válido donde las claves sean los códigos de idioma ({$localesList}) y el valor sea el texto HTML generado para ese idioma:
-        {
-            \"es_ES\": \"<p>Contenido en español...</p>\",
-            \"en_US\": \"<p>English content...</p>\",
-            ...
-        }";
-		$editorialContentRaw = $this->_callGemini($apiKey, $promptEditorial, $payload);
-		if (strpos($editorialContentRaw, 'ERROR:') !== false) return new JSONMessage(false, $editorialContentRaw);
-
-		$editorialContent = preg_replace('/```json|```/', '', $editorialContentRaw);
-		$editorialContent = trim(preg_replace('/^[^{]*|[^}]*$/', '', $editorialContent)); // Clean JSON
-		$editorialMultilang = json_decode($editorialContent, true);
-		if (!$editorialMultilang) $editorialMultilang = [];
+        REGLA CRÍTICA: NO incluyas ninguna cabecera inicial como 'Editorial', 'Editorial del Editor Jefe' o similares. Empieza directamente con el análisis del contenido.
+        Devuelve la respuesta SOLAMENTE en el idioma: {$primaryLocale}.
+        IMPORTANTE: Devuelve SOLAMENTE el texto HTML plano (sin envolver en JSON) que representa la editorial. NO respondas con nada más que el HTML generado.
+        ";
+		$editorialContent = $this->_callGemini($apiKey, $promptEditorial, $payload);
+		if (strpos($editorialContent, 'ERROR:') !== false) {
+			if (ob_get_length()) ob_clean();
+			return new JSONMessage(false, $editorialContent);
+		}
+		// Limpiamos posible markdown o ruido si el modelo lo añade
+		$editorialContent = preg_replace('/```html|```/', '', $editorialContent);
+		$editorialContent = trim($editorialContent);
 
 		// Prompt ODS en multidioma
 		$promptODS = "Analiza el contenido de los artículos y determina su contribución a los Objetivos de Desarrollo Sostenible (ODS) de la ONU.
@@ -326,21 +340,31 @@ class IssueSpotlightGridHandler extends GridHandler {
 		ODS 11: #FD9D24, ODS 12: #BF8B2E, ODS 13: #3F7E44, ODS 14: #0A97D9, ODS 15: #56C02B, 
 		ODS 16: #00689D, ODS 17: #19486A.
 		
-		Devuelve la respuesta en estos idiomas: {$localesList}.
-        IMPORTANTE: Devuelve SOLAMENTE un objeto JSON válido donde las claves sean los códigos de idioma ({$localesList}) y el valor sea un array de ODS con este formato:
-		{
-            \"es_ES\": [{\"ods\": 4, \"name\": \"Educación\", \"percentage\": 30, \"color\": \"#C5192D\", \"reasoning\": \"...\"}, ...],
-            \"en_US\": [{\"ods\": 4, \"name\": \"Quality Education\", \"percentage\": 30, \"color\": \"#C5192D\", \"reasoning\": \"...\"}, ...],
-            ...
-        }";
+		Devuelve la respuesta SOLAMENTE en el idioma: {$primaryLocale}.
+        IMPORTANTE: Devuelve SOLAMENTE un array JSON válido de ODS con este formato exacto:
+		[{\"ods\": 4, \"name\": \"Educación\", \"percentage\": 30, \"color\": \"#C5192D\", \"reasoning\": \"...\"}, ...]
+        ";
 
 		$odsContentRaw = $this->_callGemini($apiKey, $promptODS, $payload);
-		if (strpos($odsContentRaw, 'ERROR:') !== false) return new JSONMessage(false, $odsContentRaw);
+		if (strpos($odsContentRaw, 'ERROR:') !== false) {
+			if (ob_get_length()) ob_clean();
+			return new JSONMessage(false, $odsContentRaw);
+		}
 
 		$odsContent = preg_replace('/```json|```/', '', $odsContentRaw);
-		$odsContent = trim(preg_replace('/^[^{]*|[^}]*$/', '', $odsContent)); // Clean JSON
-		$odsMultilang = json_decode($odsContent, true);
-		if (!$odsMultilang) $odsMultilang = [];
+		$odsContent = trim(preg_replace('/^[^\{\[]*|[^\}\]]*$/s', '', $odsContent));
+		$odsData = json_decode($odsContent, true);
+
+		// Handle accidental multilang wrapping
+		if (is_array($odsData) && !isset($odsData[0])) {
+			if (isset($odsData[$primaryLocale])) {
+				$odsData = $odsData[$primaryLocale];
+			} else {
+				$firstVal = reset($odsData);
+				if (is_array($firstVal)) $odsData = $firstVal;
+			}
+		}
+		if (!$odsData || !is_array($odsData)) $odsData = [];
 
 		// --- GEO-ANALYSIS (RESTORING PREVIOUS LOGIC) ---
 		$affiliations = [];
@@ -376,26 +400,30 @@ class IssueSpotlightGridHandler extends GridHandler {
 			}";
 
 			$geoContentRaw = $this->_callGemini($apiKey, $promptGeo, $affPayload);
-			if (strpos($geoContentRaw, 'ERROR:') !== false) return new JSONMessage(false, $geoContentRaw);
+			if (strpos($geoContentRaw, 'ERROR:') !== false) {
+				if (ob_get_length()) ob_clean();
+				return new JSONMessage(false, $geoContentRaw);
+			}
 
 			$geoContent = preg_replace('/```json|```/', '', $geoContentRaw);
-			$geoContent = trim(preg_replace('/^[^{]*|[^}]*$/', '', $geoContent));
+			$geoContent = trim(preg_replace('/^[^\{\[]*|[^\}\]]*$/', '', $geoContent));
 			$geoJson = json_decode($geoContent, true);
 			if (!$geoJson) $geoJson = ['institutions' => [], 'collaborations' => []];
 		}
 
-		// 4. Guardar en Base de Datos para cada idioma
+		// 4. Guardar en Base de Datos para cada idioma (Clonando los datos para asegurar visibilidad en el front)
 		foreach ($supportedLocales as $locale) {
 			$this->_persistAnalysisData(
 				$issue->getId(), 
 				$locale,
-				$editorialMultilang[$locale] ?? '', 
-				json_encode($radarMultilang[$locale] ?? [], JSON_UNESCAPED_UNICODE), 
-				json_encode($odsMultilang[$locale] ?? [], JSON_UNESCAPED_UNICODE), 
-				json_encode($geoJson, JSON_UNESCAPED_UNICODE) // Geo is the same for all (normalized)
+				$editorialContent, 
+				json_encode($radarData, JSON_UNESCAPED_UNICODE), 
+				json_encode($odsData, JSON_UNESCAPED_UNICODE), 
+				json_encode($geoJson, JSON_UNESCAPED_UNICODE)
 			);
 		}
 
+		if (ob_get_length()) ob_clean();
 		return new JSONMessage(true, __('plugins.generic.issueSpotlight.analysisCompleted', array('issueId' => $issue->getIssueIdentification())));
 	}
 
@@ -409,7 +437,7 @@ class IssueSpotlightGridHandler extends GridHandler {
 			[(int)$issueId, $locale]
 		);
 		$row = (object) $result->current();
-		$date = Core::getCurrentDate();
+		$date = date('Y-m-d H:i:s');
 
 		if ($row && isset($row->c) && $row->c > 0) {
 			$dao->update(
@@ -437,21 +465,30 @@ class IssueSpotlightGridHandler extends GridHandler {
 	 */
 	private function _callGemini($apiKey, $systemPrompt, $userContent) {
 		$url = "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash-lite:generateContent?key=" . $apiKey;
-		
+
+		$truncatedContent = function_exists('mb_substr') 
+			? mb_substr($userContent, 0, 100000, 'UTF-8') 
+			: substr($userContent, 0, 100000);
+
 		$data = [
 			"contents" => [
 				[
 					"parts" => [
-						["text" => $systemPrompt . "\n\nDATOS A ANALIZAR:\n" . substr($userContent, 0, 30000)] // Limitamos payload por seguridad
+						["text" => $systemPrompt . "\n\nDATOS A ANALIZAR:\n" . $truncatedContent]
 					]
 				]
 			]
 		];
 
+		$jsonData = json_encode($data);
+		if ($jsonData === false) {
+			return "ERROR: Fallo al codificar los datos en JSON. Probablemente hay caracteres inválidos.";
+		}
+
 		$ch = curl_init($url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_POST, true);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
 		
 		$response = curl_exec($ch);

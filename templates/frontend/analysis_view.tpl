@@ -392,28 +392,23 @@
 			},
 			plotOptions: {
 				packedbubble: {
-						minSize: '45%',
-						maxSize: '200%',
-						layoutAlgorithm: {
-							gravitationalConstant: 0.002,
-							splitSeries: false,
-							seriesInteraction: true,
-							dragBetweenSeries: false,
-							parentNodeLimit: true,
-							bubblePadding: 5,
-							enableSimulation: true,
-							initialAnimation: true,
-							maxIterations: 2000,
-							friction: -0.98
-						},
+					minSize: '40%',
+					maxSize: '160%',
+					layoutAlgorithm: {
+						splitSeries: false,
+						gravitationalConstant: 0.005, // Slightly lower to let the larger bubbles find space
+						seriesInteraction: true,
+						dragBetweenSeries: true,
+						parentNodeLimit: true,
+						bubblePadding: 12, // Enough distance to be clean, but allowing bigger spheres
+						enableSimulation: true,
+						maxIterations: 2500,
+						initialAnimation: true,
+						friction: -0.95
+					},
 					dataLabels: {
 						enabled: true,
 						format: '{point.name}',
-						filter: {
-							property: 'y',
-							operator: '>',
-							value: 0
-						},
 						style: {
 							color: 'white',
 							textOutline: '2px rgba(0,0,0,0.5)',
