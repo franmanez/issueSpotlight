@@ -289,9 +289,9 @@ class IssueSpotlightGridHandler extends GridHandler {
 		 - 'rising': Si se menciona como tendencia creciente o muy relevante.
 		 - 'stable': Si es una tecnología/método base, comparativa o estándar.
         
-        Devuelve la respuesta SOLAMENTE en el idioma: {$primaryLocale}.
+        Devuelve la respuesta SOLAMENTE en idioma INGLÉS (en_US), ya que es el estándar internacional para conceptos científicos.
         IMPORTANTE: Devuelve SOLAMENTE un array JSON válido con los 30 conceptos más importantes (No menos de 25 y no más de 30) con este formato exacto:
-        [{\"tag\": \"Concepto 1\", \"count\": 5, \"trend\": \"rising\"}, {\"tag\": \"Concepto 2\", \"count\": 3, \"trend\": \"new\"}, ...]
+        [{\"tag\": \"Concepto en inglés\", \"count\": 5, \"trend\": \"rising\"}, {\"tag\": \"Concepto en inglés\", \"count\": 3, \"trend\": \"new\"}, ...]
         ";
 
 		$radarContentRaw = $this->_callGemini($apiKey, $promptRadar, $payload);
@@ -333,7 +333,7 @@ class IssueSpotlightGridHandler extends GridHandler {
 
 		// Prompt ODS en multidioma
 		$promptODS = "Analiza el contenido de los artículos y determina su contribución a los Objetivos de Desarrollo Sostenible (ODS) de la ONU.
-		Distribuye un total de 100% entre los ODS más relevantes (mínimo 3, máximo 6).
+		Distribuye un total de 100% entre los ODS más relevantes (mínimo 3, máximo 7).
 		Utiliza estrictamente esta tabla de colores oficiales hex para cada ODS:
 		ODS 1: #E5243B, ODS 2: #DDA63A, ODS 3: #4C9F38, ODS 4: #C5192D, ODS 5: #FF3A21, 
 		ODS 6: #26BDE2, ODS 7: #FCC30B, ODS 8: #A21942, ODS 9: #FD6925, ODS 10: #DD1367, 
@@ -384,6 +384,7 @@ class IssueSpotlightGridHandler extends GridHandler {
 		$uniqueAffiliations = array_unique($affiliations);
 		
 		if (empty($uniqueAffiliations)) {
+			// No affiliations found -> Empty Geo Analysis
 			$geoJson = ['institutions' => [], 'collaborations' => []];
 		} else {
 			$affPayload = implode("\n", $uniqueAffiliations);
@@ -406,22 +407,21 @@ class IssueSpotlightGridHandler extends GridHandler {
 			}
 
 			$geoContent = preg_replace('/```json|```/', '', $geoContentRaw);
-			$geoContent = trim(preg_replace('/^[^\{\[]*|[^\}\]]*$/', '', $geoContent));
+			$geoContent = trim(preg_replace('/^[^\{\[]*|[^\}\]]*$/s', '', $geoContent));
 			$geoJson = json_decode($geoContent, true);
 			if (!$geoJson) $geoJson = ['institutions' => [], 'collaborations' => []];
 		}
 
-		// 4. Guardar en Base de Datos para cada idioma (Clonando los datos para asegurar visibilidad en el front)
-		foreach ($supportedLocales as $locale) {
-			$this->_persistAnalysisData(
-				$issue->getId(), 
-				$locale,
-				$editorialContent, 
-				json_encode($radarData, JSON_UNESCAPED_UNICODE), 
-				json_encode($odsData, JSON_UNESCAPED_UNICODE), 
-				json_encode($geoJson, JSON_UNESCAPED_UNICODE)
-			);
-		}
+
+
+		// 4. Guardar en Base de Datos (Estrategia de Registro Único)
+		$this->_persistAnalysisData(
+			$issue->getId(), 
+			$editorialContent, 
+			json_encode($radarData, JSON_UNESCAPED_UNICODE), 
+			json_encode($odsData, JSON_UNESCAPED_UNICODE), 
+			json_encode($geoJson, JSON_UNESCAPED_UNICODE)
+		);
 
 		if (ob_get_length()) ob_clean();
 		return new JSONMessage(true, __('plugins.generic.issueSpotlight.analysisCompleted', array('issueId' => $issue->getIssueIdentification())));
@@ -430,11 +430,11 @@ class IssueSpotlightGridHandler extends GridHandler {
 	/**
 	 * Helper: Persistir datos por idioma
 	 */
-	private function _persistAnalysisData($issueId, $locale, $editorial, $radar, $ods, $geo) {
+	private function _persistAnalysisData($issueId, $editorial, $radar, $ods, $geo) {
 		$dao = new DAO();
 		$result = $dao->retrieve(
-			'SELECT count(*) as c FROM issue_ai_analysis WHERE issue_id = ? AND locale = ?',
-			[(int)$issueId, $locale]
+			'SELECT count(*) as c FROM issue_ai_analysis WHERE issue_id = ?',
+			[(int)$issueId]
 		);
 		$row = (object) $result->current();
 		$date = date('Y-m-d H:i:s');
@@ -447,15 +447,15 @@ class IssueSpotlightGridHandler extends GridHandler {
 				     ods_analysis = ?, 
 				     geo_analysis = ?, 
 				     date_generated = ? 
-				 WHERE issue_id = ? AND locale = ?',
-				[$editorial, $radar, $ods, $geo, $date, (int)$issueId, $locale]
+				 WHERE issue_id = ?',
+				[$editorial, $radar, $ods, $geo, $date, (int)$issueId]
 			);
 		} else {
 			$dao->update(
 				'INSERT INTO issue_ai_analysis 
-				 (issue_id, locale, editorial_draft, radar_analysis, ods_analysis, geo_analysis, date_generated) 
-				 VALUES (?, ?, ?, ?, ?, ?, ?)',
-				[(int)$issueId, $locale, $editorial, $radar, $ods, $geo, $date]
+				 (issue_id, editorial_draft, radar_analysis, ods_analysis, geo_analysis, date_generated) 
+				 VALUES (?, ?, ?, ?, ?, ?)',
+				[(int)$issueId, $editorial, $radar, $ods, $geo, $date]
 			);
 		}
 	}

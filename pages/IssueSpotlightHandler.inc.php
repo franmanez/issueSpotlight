@@ -55,20 +55,14 @@ class IssueSpotlightHandler extends Handler {
 		AppLocale::requireComponents(LOCALE_COMPONENT_APP_COMMON, LOCALE_COMPONENT_PKP_COMMON, LOCALE_COMPONENT_APP_SUBMISSION);
 		$templateMgr = TemplateManager::getManager($request);
 
-		// Fetch Analysis Data
+		// Fetch Analysis Data (Single record per issue strategy)
 		$dao = new DAO();
-		$currentLocale = AppLocale::getLocale();
+		// Retrieves the most recent analysis for this issue, ignoring locale
 		$result = $dao->retrieve(
-			'SELECT * FROM issue_ai_analysis WHERE issue_id = ? AND locale = ?',
-			[$issueId, $currentLocale]
+			'SELECT * FROM issue_ai_analysis WHERE issue_id = ?',
+			[$issueId]
 		);
 		$analysisData = (object) $result->current();
-
-		if (!$analysisData || !isset($analysisData->issue_id)) {
-			// Fallback: try to find any existing analysis for this issue if the current locale is missing
-			$result = $dao->retrieve('SELECT * FROM issue_ai_analysis WHERE issue_id = ? LIMIT 1', [$issueId]);
-			$analysisData = (object) $result->current();
-		}
 
 		if (!$analysisData || !isset($analysisData->issue_id)) {
 			// If no analysis exists at all, redirect back to issue page

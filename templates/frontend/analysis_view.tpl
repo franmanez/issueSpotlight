@@ -579,7 +579,7 @@
 							<h4 style="margin: 0 0 5px 0; color: #333; font-size: 1em;">${item.name}</h4>
 							
 							<!-- Reasoning -->
-							<p style="font-size: 0.85em; color: #666; font-style: italic; margin: 0 0 10px 0; line-height: 1.4;">
+							<p style="font-size: 0.95em; color: #444; margin: 0 0 10px 0; line-height: 1.5;">
 								"${item.reasoning || 'Análisis de impacto basado en contenidos.'}"
 							</p>
 
