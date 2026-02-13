@@ -568,7 +568,7 @@
 				const color = item.color || '#006798';
 				
 				cardsHtml += `
-					<div style="display: flex; align-items: center; background: white; border: 1px solid #e0e0e0; border-radius: 6px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+					<div style="display: flex; align-items: flex-start; background: white; border: 1px solid #e0e0e0; border-radius: 6px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
 						<!-- ICON -->
 						<div style="flex: 0 0 80px; margin-right: 15px;">
 							<img src="${pluginImgPath}${item.ods}.png" alt="ODS ${item.ods}" style="width: 100%; border-radius: 4px;">
