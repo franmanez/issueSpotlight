@@ -2,10 +2,11 @@
 <!DOCTYPE version SYSTEM "../../../lib/pkp/dtd/pluginVersion.dtd">
 <version>
 	<application>issueSpotlight</application>
-	<type>plugins.generic</type>
-	<release>1.0.0.0</release>
-	<date>2026-02-04</date>
-	<lazy-load>1</lazy-load>
-	<sitewide>1</sitewide>
-	<class>IssueSpotlightPlugin</class>
+    <type>plugins.generic</type>
+    <release>1.0.0.0</release>
+    <date>2026-02-04</date>
+    <lazy-load>1</lazy-load>
+    <sitewide>1</sitewide>
+    <class>IssueSpotlightPlugin</class>
+    <product>issueSpotlight</product>
 </version>

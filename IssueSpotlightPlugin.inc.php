@@ -15,6 +15,8 @@
 
 import('lib.pkp.classes.plugins.GenericPlugin');
 import('lib.pkp.classes.core.JSONMessage');
+import('lib.pkp.classes.db.DAO');
+import('lib.pkp.classes.plugins.HookRegistry');
 
 class IssueSpotlightPlugin extends GenericPlugin {
 
@@ -28,15 +30,6 @@ class IssueSpotlightPlugin extends GenericPlugin {
 	public function register($category, $path, $mainContextId = null) {
 		if (parent::register($category, $path, $mainContextId)) {
 			if ($this->getEnabled($mainContextId)) {
-				// Autoinstalar tabla si falta (Para OJS 3.3 y 3.4 manual)
-				$dao = new DAO();
-				try {
-					$dao->retrieve('SELECT 1 FROM issue_ai_analysis LIMIT 1');
-				} catch (Exception $e) {
-					// La tabla no existe, forzamos instalación
-					$this->installSchema();
-				}
-
 				AppLocale::requireComponents(LOCALE_COMPONENT_APP_COMMON, LOCALE_COMPONENT_PKP_COMMON, LOCALE_COMPONENT_APP_EDITOR, LOCALE_COMPONENT_PKP_MANAGER);
 				
 				// Standard OJS 3.3 hooks for grids are lowercase
@@ -157,17 +150,11 @@ class IssueSpotlightPlugin extends GenericPlugin {
 	}
 
 	/**
-	 * Provide the installation form for the plugin.
+	 * @copydoc Plugin::getInstallMigration()
 	 */
-	public function getInstallSchemaFile() {
-		return $this->getPluginPath() . '/schema.xml';
-	}
-
-	/**
-	 * Provide the installation XML file for the plugin.
-	 */
-	public function getInstallXmlFile() {
-		return $this->getPluginPath() . '/install.xml';
+	public function getInstallMigration() {
+		$this->import('classes.IssueSpotlightSchemaMigration');
+		return new IssueSpotlightSchemaMigration();
 	}
 
 	/**
@@ -242,8 +229,13 @@ class IssueSpotlightPlugin extends GenericPlugin {
 
 			// Comprobar si hay análisis
 			$dao = new DAO();
-			$result = $dao->retrieve('SELECT count(*) as c FROM issue_ai_analysis WHERE issue_id = ?', [(int)$issue->getId()]);
-			$row = (object) $result->current();
+			try {
+				$result = $dao->retrieve('SELECT count(*) as c FROM issue_ai_analysis WHERE issue_id = ?', [(int)$issue->getId()]);
+				$row = (object) $result->current();
+			} catch (Exception $e) {
+				// La tabla no existe aún, ignoramos la inyección del botón
+				return $output;
+			}
 
 			if ($row && isset($row->c) && $row->c > 0) {
 				$request = Application::get()->getRequest();
@@ -343,19 +335,4 @@ class IssueSpotlightPlugin extends GenericPlugin {
 		return false;
 	}
 
-	/**
-	 * @desc Instalar el esquema de forma manual si falla el instalador estándar
-	 */
-	public function installSchema() {
-		import('lib.pkp.classes.db.DBDataXMLParser');
-		$path = $this->getPluginPath() . '/schema.xml';
-		$dbDao = new DAO();
-		$dataXmlParser = new DBDataXMLParser();
-		$dataXmlParser->setDBConn($dbDao->getDataSource());
-		$sql = $dataXmlParser->parseStruct($path);
-		foreach ($sql as $line) {
-			$dbDao->update($line);
-		}
-		return true;
-	}
 }

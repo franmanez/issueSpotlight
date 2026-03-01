@@ -14,7 +14,30 @@
 	{include file="frontend/components/breadcrumbs_issue.tpl" currentTitle=$issue->getIssueIdentification()}
 	
 	<h1>{translate key="plugins.generic.issueSpotlight.analysisTitle"}: {$issue->getIssueIdentification()}</h1>
-	
+
+	<div style="margin-bottom: 25px;">
+		<div style="
+			background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+			color: white;
+			padding: 6px 16px;
+			border-radius: 50px;
+			font-weight: 800;
+			font-size: 11px;
+			letter-spacing: 1.2px;
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+			user-select: none;
+			border: 1px solid rgba(255,255,255,0.2);
+			text-transform: uppercase;
+			white-space: nowrap;
+		">
+			<span style="font-size: 14px;">🪄</span> 
+			<span>GENERADO CON IA</span>
+		</div>
+	</div>
+
 	<div class="description" style="margin-bottom: 30px; border-bottom: 1px solid #ddd; padding-bottom: 20px;">
 		<p>{translate key="plugins.generic.issueSpotlight.detailedDescription"}</p>
 	</div>
@@ -144,30 +167,30 @@
                 </div>
             </div>
 
-            {* TRENDING CARDS LIST (3 COLUMNS) *}
-            <div class="row" style="margin-top: 40px; margin-left: -10px; margin-right: -10px;">
+            {* TRENDING CARDS LIST (3 COLUMNS) - Native CSS Flexbox (No Bootstrap dependency) *}
+            <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-top: 40px;">
                 <!-- Column 1: STABLE -->
-                <div class="col-md-4" style="padding: 0 10px;">
-                    <div style="background-color: #f0f8ff; border-top: 3px solid #1E90FF; padding: 10px; border-radius: 4px 4px 0 0; margin-bottom: 15px;">
-                        <h5 style="color: #1E90FF; text-transform: uppercase; margin: 0; font-weight: bold;">{translate key="plugins.generic.issueSpotlight.title.stable"}</h5>
+                <div style="flex: 1; min-width: 280px; display: flex; flex-direction: column;">
+                    <div style="background-color: #f0f8ff; border-top: 3px solid #1E90FF; padding: 12px; border-radius: 4px 4px 0 0; margin-bottom: 15px;">
+                        <h5 style="color: #1E90FF; text-transform: uppercase; margin: 0; font-weight: bold; font-size: 0.9rem; letter-spacing: 0.5px;">{translate key="plugins.generic.issueSpotlight.title.stable"}</h5>
                     </div>
-                    <div id="radarList_stable" style="display: flex; flex-direction: column; gap: 15px;"></div>
+                    <div id="radarList_stable" style="display: flex; flex-direction: column; gap: 12px;"></div>
                 </div>
                 
                 <!-- Column 2: RISING -->
-                <div class="col-md-4" style="padding: 0 10px;">
-                    <div style="background-color: #fff0f1; border-top: 3px solid #FF4757; padding: 10px; border-radius: 4px 4px 0 0; margin-bottom: 15px;">
-                        <h5 style="color: #FF4757; text-transform: uppercase; margin: 0; font-weight: bold;">{translate key="plugins.generic.issueSpotlight.title.rising"}</h5>
+                <div style="flex: 1; min-width: 280px; display: flex; flex-direction: column;">
+                    <div style="background-color: #fff0f1; border-top: 3px solid #FF4757; padding: 12px; border-radius: 4px 4px 0 0; margin-bottom: 15px;">
+                        <h5 style="color: #FF4757; text-transform: uppercase; margin: 0; font-weight: bold; font-size: 0.9rem; letter-spacing: 0.5px;">{translate key="plugins.generic.issueSpotlight.title.rising"}</h5>
                     </div>
-                    <div id="radarList_rising" style="display: flex; flex-direction: column; gap: 15px;"></div>
+                    <div id="radarList_rising" style="display: flex; flex-direction: column; gap: 12px;"></div>
                 </div>
 
                 <!-- Column 3: NEW -->
-                <div class="col-md-4" style="padding: 0 10px;">
-                     <div style="background-color: #f0fff4; border-top: 3px solid #2ED573; padding: 10px; border-radius: 4px 4px 0 0; margin-bottom: 15px;">
-                        <h5 style="color: #2ED573; text-transform: uppercase; margin: 0; font-weight: bold;">{translate key="plugins.generic.issueSpotlight.title.new"}</h5>
+                <div style="flex: 1; min-width: 280px; display: flex; flex-direction: column;">
+                     <div style="background-color: #f0fff4; border-top: 3px solid #2ED573; padding: 12px; border-radius: 4px 4px 0 0; margin-bottom: 15px;">
+                        <h5 style="color: #2ED573; text-transform: uppercase; margin: 0; font-weight: bold; font-size: 0.9rem; letter-spacing: 0.5px;">{translate key="plugins.generic.issueSpotlight.title.new"}</h5>
                     </div>
-                    <div id="radarList_new" style="display: flex; flex-direction: column; gap: 15px;"></div>
+                    <div id="radarList_new" style="display: flex; flex-direction: column; gap: 12px;"></div>
                 </div>
             </div>
 		</div>

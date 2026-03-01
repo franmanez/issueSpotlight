@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE install SYSTEM "../../../lib/pkp/dtd/install.dtd">
-<install version="2.0">
-	<schema file="plugins/generic/issueSpotlight/schema.xml"/>
-</install>
