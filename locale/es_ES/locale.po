@@ -21,7 +21,7 @@ msgid "plugins.generic.issueSpotlight.description"
 msgstr "Análisis inteligente de números mediante IA: editorial, radar de innovación, impacto ODS y mapa global de autores."
 
 msgid "plugins.generic.issueSpotlight.detailedDescription"
-msgstr "Este módulo presenta perspectivas de análisis avanzadas obtenidas mediante inteligencia artificial:<ul style=\"margin-top:5px; padding-left:20px;\"><li><strong>Resumen editorial:</strong> Generación automática de un borrador editorial sintetizando los temas clave.</li><li><strong>Radar de Innovación:</strong> Mapa visual de tendencias tecnológicas emergentes y consolidadas.</li><li><strong>Impacto ODS:</strong> Evaluación de la alineación temática con los Objetivos de Desarrollo Sostenible.</li><li><strong>Mapa Global:</strong> Visualización de la distribución geográfica de autores e instituciones representadas.</li></ul>"
+msgstr "Este módulo presenta perspectivas de análisis avanzadas obtenidas mediante inteligencia artificial:<ul style=\"margin-top:5px; padding-left:20px;\"><li><strong>Resumen editorial:</strong> Generación automática de un borrador editorial sintetizando los temas clave.</li><li><strong>Radar de Innovación:</strong> Mapa visual de tendencias tecnológicas emergentes y estables.</li><li><strong>Impacto ODS:</strong> Evaluación de la alineación temática con los Objetivos de Desarrollo Sostenible.</li><li><strong>Mapa Global:</strong> Visualización de la distribución geográfica de autores e instituciones representadas.</li></ul>"
 
 msgid "plugins.generic.issueSpotlight.settings"
 msgstr "Configuración"
@@ -87,7 +87,7 @@ msgid "plugins.generic.issueSpotlight.explanation.radar.title"
 msgstr "¿Cómo interpretar este gráfico?"
 
 msgid "plugins.generic.issueSpotlight.explanation.radar.desc"
-msgstr "Este radar visualiza los conceptos clave extraídos del número. El <strong>tamaño</strong> de las burbujas indica el volumen de apariciones. Los <strong>colores</strong> representan la tendencia detectada: <span style=\"color:#FF4757; font-weight:bold;\">● En Alza</span>, <span style=\"color:#2ED573; font-weight:bold;\">● Novedad</span> y <span style=\"color:#1E90FF; font-weight:bold;\">● Consolidado</span>."
+msgstr "Este radar visualiza los conceptos clave extraídos del número. El <strong>tamaño</strong> de las burbujas indica el volumen de apariciones. Los <strong>colores</strong> representan la tendencia detectada: <span style=\"color:#FF4757; font-weight:bold;\">● En Alza</span>, <span style=\"color:#2ED573; font-weight:bold;\">● Novedad</span> y <span style=\"color:#1E90FF; font-weight:bold;\">● Estable</span>."
 
 msgid "plugins.generic.issueSpotlight.bubble.size"
 msgstr "Tamaño"
@@ -102,10 +102,10 @@ msgid "plugins.generic.issueSpotlight.bubble.new"
 msgstr "Novedad (New)"
 
 msgid "plugins.generic.issueSpotlight.bubble.stable"
-msgstr "Consolidado (Stable)"
+msgstr "Estable (Stable)"
 
 msgid "plugins.generic.issueSpotlight.title.stable"
-msgstr "Consolidados"
+msgstr "Estables"
 
 msgid "plugins.generic.issueSpotlight.title.rising"
 msgstr "En Alza"
@@ -117,7 +117,7 @@ msgid "plugins.generic.issueSpotlight.ods.details"
 msgstr "Detalle de Objetivos Impactados"
 
 msgid "plugins.generic.issueSpotlight.explanation.geo.title"
-msgstr "Mapa Global de Colaboración"
+msgstr "Mapa Global"
 
 msgid "plugins.generic.issueSpotlight.explanation.geo.reach"
 msgstr "Alcance Internacional e Institucional"

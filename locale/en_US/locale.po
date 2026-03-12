@@ -21,7 +21,7 @@ msgid "plugins.generic.issueSpotlight.description"
 msgstr "Intelligent issue analysis via AI: editorial draft, innovation radar, SDG impact, and global map of authors."
 
 msgid "plugins.generic.issueSpotlight.detailedDescription"
-msgstr "This module presents advanced analysis perspectives obtained through artificial intelligence:<ul style=\"margin-top:5px; padding-left:20px;\"><li><strong>Editorial Summary:</strong> Automatic draft of an editorial summarizing key themes.</li><li><strong>Innovation Radar:</strong> Visual map of emerging and consolidated technological trends.</li><li><strong>SDG Impact:</strong> Assessment of thematic alignment with the UN Sustainable Development Goals.</li><li><strong>Global Map:</strong> Visualization of the geographical distribution of authors and represented institutions.</li></ul>"
+msgstr "This module presents advanced analysis perspectives obtained through artificial intelligence:<ul style=\"margin-top:5px; padding-left:20px;\"><li><strong>Editorial Summary:</strong> Automatic draft of an editorial summarizing key themes.</li><li><strong>Innovation Radar:</strong> Visual map of emerging and stable technological trends.</li><li><strong>SDG Impact:</strong> Assessment of thematic alignment with the UN Sustainable Development Goals.</li><li><strong>Global Map:</strong> Visualization of the geographical distribution of authors and represented institutions.</li></ul>"
 
 msgid "plugins.generic.issueSpotlight.settings"
 msgstr "Settings"
@@ -117,7 +117,7 @@ msgid "plugins.generic.issueSpotlight.ods.details"
 msgstr "Detailed Impacted Goals"
 
 msgid "plugins.generic.issueSpotlight.explanation.geo.title"
-msgstr "Global Collaboration Map"
+msgstr "Global Map"
 
 msgid "plugins.generic.issueSpotlight.explanation.geo.reach"
 msgstr "International and Institutional Reach"
