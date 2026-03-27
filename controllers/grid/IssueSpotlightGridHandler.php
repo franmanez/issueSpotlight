@@ -1,6 +1,6 @@
 <?php
 /**
- * @file plugins/generic/issueSpotlight/controllers/grid/IssueSpotlightGridHandler.inc.php
+ * @file plugins/generic/issueSpotlight/controllers/grid/IssueSpotlightGridHandler.php
  *
  * Copyright (c) 2026 UPC - Universitat Politècnica de Catalunya
  * Author: Fran Máñez <fran.upc@gmail.com>, <francisco.manez@upc.edu>
@@ -13,9 +13,17 @@
  *        processes multilingual prompts, and persists analysis results to the database.
  */
 
-import('lib.pkp.classes.controllers.grid.GridHandler');
-import('lib.pkp.classes.db.DAO');
-import('lib.pkp.classes.core.Core');
+namespace APP\plugins\generic\issueSpotlight\controllers\grid;
+
+use APP\core\Application;
+use APP\facades\Repo;
+use PKP\controllers\grid\GridHandler;
+use PKP\core\JSONMessage;
+use PKP\db\DAO;
+use PKP\db\DAORegistry;
+use PKP\security\authorization\ContextAccessPolicy;
+use PKP\security\Role;
+use Illuminate\Support\Facades\DB;
 
 class IssueSpotlightGridHandler extends GridHandler {
 	/**
@@ -24,7 +32,7 @@ class IssueSpotlightGridHandler extends GridHandler {
 	function __construct() {
 		parent::__construct();
 		$this->addRoleAssignment(
-			[ROLE_ID_MANAGER, ROLE_ID_SITE_ADMIN],
+			[Role::ROLE_ID_MANAGER, Role::ROLE_ID_SITE_ADMIN],
 			['analysis', 'runAnalysisDummy', 'runAnalysisReal']
 		);
 	}
@@ -33,11 +41,10 @@ class IssueSpotlightGridHandler extends GridHandler {
 	 * @copydoc PKPHandler::authorize()
 	 */
 	function authorize($request, &$args, $roleAssignments) {
-		import('lib.pkp.classes.security.authorization.ContextAccessPolicy');
 		$this->addPolicy(new ContextAccessPolicy($request, $roleAssignments));
 
 		import('classes.security.authorization.OjsIssueRequiredPolicy');
-		$this->addPolicy(new OjsIssueRequiredPolicy($request, $args));
+		$this->addPolicy(new \OjsIssueRequiredPolicy($request, $args));
 
 		return parent::authorize($request, $args, $roleAssignments);
 	}
@@ -46,7 +53,7 @@ class IssueSpotlightGridHandler extends GridHandler {
 	 * Handle analysis request (View)
 	 */
 	function analysis($args, $request) {
-		$issue = $this->getAuthorizedContextObject(ASSOC_TYPE_ISSUE);
+		$issue = $this->getAuthorizedContextObject(\APP\core\Application::ASSOC_TYPE_ISSUE);
 		$context = $request->getContext();
 		$router = $request->getRouter();
 		
@@ -54,22 +61,22 @@ class IssueSpotlightGridHandler extends GridHandler {
 		$realUrl = $router->url($request, null, 'plugins.generic.issueSpotlight.controllers.grid.IssueSpotlightGridHandler', 'runAnalysisReal', null, array('issueId' => $issue->getId()));
 
 		// Comprobar si ya existe un análisis
-		$analysisExists = \Illuminate\Database\Capsule\Manager::table('issue_ai_analysis')
+		$analysisExists = DB::table('issue_ai_analysis')
 			->where('issue_id', (int) $issue->getId())
 			->exists();
 
 		// Obtener artículos y autores
-		$submissionsIterator = Services::get('submission')->getMany([
-			'contextId' => $context->getId(),
-			'issueIds' => $issue->getId(),
-		]);
+		$submissions = Repo::submission()->getCollector()
+			->filterByContextIds([$context->getId()])
+			->filterByIssueIds([$issue->getId()])
+			->getMany();
 		
 		$articlesRows = '';
 		$authorsRows = '';
 		$articleCount = 0;
 		$uniqueAuthors = [];
 
-		foreach ($submissionsIterator as $submission) {
+		foreach ($submissions as $submission) {
 			$publication = $submission->getCurrentPublication();
 			$title = $publication ? $publication->getLocalizedTitle() : $submission->getLocalizedTitle();
 			$titleStr = $title ? htmlspecialchars($title) : '<em>(Sin título)</em>';
@@ -178,7 +185,7 @@ class IssueSpotlightGridHandler extends GridHandler {
 					__('plugins.generic.issueSpotlight.analysisProcessDescription') .
 				'</p>' .
 			'</div>' .
-
+ 
 			'<div style="text-align: right; margin-bottom: 10px;">' .
 				'<a href="#" id="btn_toggle_details" onclick="toggleDetails(); return false;" style="color: #006798; font-size: 0.85rem; text-decoration: none; font-weight: 600;">Ver detalles del contenido ▼</a>' .
 			'</div>' .
@@ -191,7 +198,7 @@ class IssueSpotlightGridHandler extends GridHandler {
 				'<div id="tab_articles" style="max-height: 200px; overflow-y: auto;">' . $articlesTable . '</div>' .
 				'<div id="tab_authors" style="display:none; max-height: 200px; overflow-y: auto;">' . $authorsTable . '</div>' .
 			'</div>' .
-
+ 
 			'<div style="margin-top: 25px; text-align: center; border-top: 1px solid #eee; padding-top: 25px;">' .
 				'<button id="btnRunReal" class="pkp_button pkp_button_primary" style="padding: 10px 25px; font-weight: 600; font-size: 0.95rem;" onclick="triggerAnalysis()">' . 
 					($analysisExists ? 'VOLVER A GENERAR ANÁLISIS' : 'INICIAR ANÁLISIS CON IA') . 
@@ -200,7 +207,7 @@ class IssueSpotlightGridHandler extends GridHandler {
 			'</div>' .
 			$jsScript .
 			'</div>';
-
+ 
 		// Limpiamos cualquier buffer de salida (como Notices de OJS) para asegurar JSON válido
 		if (ob_get_length()) ob_clean();
 		return new JSONMessage(true, $content);
@@ -210,14 +217,16 @@ class IssueSpotlightGridHandler extends GridHandler {
 	 * Handle dummy analysis execution
 	 */
 	function runAnalysisDummy($args, $request) {
-		// (Mantengo la función dummy idéntica para referencia)
-		$issue = $this->getAuthorizedContextObject(ASSOC_TYPE_ISSUE);
+		$issue = $this->getAuthorizedContextObject(\APP\core\Application::ASSOC_TYPE_ISSUE);
 		$contextId = $request->getContext()->getId();
 		
-		// INSERTAR LÓGICA DUMMY (Ya probada)
-		$submissionsIterator = Services::get('submission')->getMany(['contextId' => $contextId, 'issueIds' => $issue->getId()]);
+		$submissions = Repo::submission()->getCollector()
+			->filterByContextIds([$contextId])
+			->filterByIssueIds([$issue->getId()])
+			->getMany();
+
 		$titles = [];
-		foreach ($submissionsIterator as $s) {
+		foreach ($submissions as $s) {
 			$t = $s->getLocalizedTitle() ?: ($s->getCurrentPublication() ? $s->getCurrentPublication()->getLocalizedTitle() : '');
 			if ($t) $titles[] = $t;
 		}
@@ -225,13 +234,12 @@ class IssueSpotlightGridHandler extends GridHandler {
 		
 		$this->_persistAnalysisData(
 			$issue->getId(), 
-			AppLocale::getLocale(),
 			"<h3>Editorial Dummy</h3><p>Prueba con: $randomTitle</p>", 
 			json_encode([['tag' => 'DummyTag', 'count' => 10, 'trend' => 'stable']]), 
 			json_encode([['ods' => 4, 'name' => 'Educación', 'percentage' => 100, 'color' => '#C5192D', 'reasoning' => 'Test']]),
 			json_encode(['institutions' => []])
 		);
-
+ 
 		if (ob_get_length()) ob_clean();
 		return new JSONMessage(true, "<strong>Test OK!</strong> Datos dummy guardados usando: <em>$randomTitle</em>");
 	}
@@ -240,13 +248,16 @@ class IssueSpotlightGridHandler extends GridHandler {
 	 * Handle REAL analysis execution with Gemini
 	 */
 	function runAnalysisReal($args, $request) {
-		$issue = $this->getAuthorizedContextObject(ASSOC_TYPE_ISSUE);
+		$issue = $this->getAuthorizedContextObject(\APP\core\Application::ASSOC_TYPE_ISSUE);
 		$context = $request->getContext();
 		$contextId = $context->getId();
 
 		// 1. Obtener API Key
-		$pluginSettingsDao = DAORegistry::getDAO('PluginSettingsDAO');
-		$apiKey = $pluginSettingsDao->getSetting($contextId, 'issuespotlightplugin', 'apiKey');
+		$apiKey = $context->getData('issueSpotlightApiKey'); // Asumiendo que se guardó así o vía plugin settings
+        if (!$apiKey) {
+            $pluginSettingsDao = DAORegistry::getDAO('PluginSettingsDAO');
+            $apiKey = $pluginSettingsDao->getSetting($contextId, 'issuespotlightplugin', 'apiKey');
+        }
 
 		if (!$apiKey) {
 			if (ob_get_length()) ob_clean();
@@ -254,9 +265,13 @@ class IssueSpotlightGridHandler extends GridHandler {
 		}
 
 		// 2. Construir Payload
-		$submissionsIterator = Services::get('submission')->getMany(['contextId' => $contextId, 'issueIds' => $issue->getId()]);
+		$submissions = Repo::submission()->getCollector()
+			->filterByContextIds([$contextId])
+			->filterByIssueIds([$issue->getId()])
+			->getMany();
+
 		$payload = "";
-		foreach ($submissionsIterator as $submission) {
+		foreach ($submissions as $submission) {
 			$pub = $submission->getCurrentPublication();
 			$title = $submission->getLocalizedTitle() ?: ($pub ? $pub->getLocalizedTitle() : '');
 			$abstract = $pub ? strip_tags($pub->getLocalizedData('abstract')) : '';
@@ -270,7 +285,6 @@ class IssueSpotlightGridHandler extends GridHandler {
 
 		// Use only the primary locale for the analysis to save tokens and prevent truncations
 		$primaryLocale = $context->getPrimaryLocale();
-		$supportedLocales = $context->getSupportedLocales();
 
 		// 3. Llamadas a Gemini (Secuenciales)
 		// Prompt 2: Radar de Innovación (Tags + Count + Trend) en multidioma (Refined for specificity)
@@ -368,8 +382,12 @@ class IssueSpotlightGridHandler extends GridHandler {
 
 		// --- GEO-ANALYSIS (RESTORING PREVIOUS LOGIC) ---
 		$affiliations = [];
-		$submissionsIteratorGeo = Services::get('submission')->getMany(['contextId' => $contextId, 'issueIds' => $issue->getId()]);
-		foreach ($submissionsIteratorGeo as $submission) {
+		$submissionsGeo = Repo::submission()->getCollector()
+			->filterByContextIds([$contextId])
+			->filterByIssueIds([$issue->getId()])
+			->getMany();
+
+		foreach ($submissionsGeo as $submission) {
 			$publication = $submission->getCurrentPublication();
 			if ($publication) {
 				$authors = $publication->getData('authors');
@@ -411,8 +429,6 @@ class IssueSpotlightGridHandler extends GridHandler {
 			$geoJson = json_decode($geoContent, true);
 			if (!$geoJson) $geoJson = ['institutions' => [], 'collaborations' => []];
 		}
-
-
 
 		// 4. Guardar en Base de Datos (Estrategia de Registro Único)
 		$this->_persistAnalysisData(

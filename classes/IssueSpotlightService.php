@@ -1,6 +1,6 @@
 <?php
 /**
- * @file plugins/generic/issueSpotlight/classes/IssueSpotlightService.inc.php
+ * @file plugins/generic/issueSpotlight/classes/IssueSpotlightService.php
  *
  * Copyright (c) 2026 UPC - Universitat Politècnica de Catalunya
  * Author: Fran Máñez <fran.upc@gmail.com>, <francisco.manez@upc.edu>
@@ -12,14 +12,18 @@
  * @brief Service layer for AI analysis operations and data retrieval.
  */
 
+namespace APP\plugins\generic\issueSpotlight\classes;
+
+use APP\facades\Repo;
+
 class IssueSpotlightService {
 
-	/** @var IssueSpotlightPlugin */
+	/** @var \APP\plugins\generic\issueSpotlight\IssueSpotlightPlugin */
 	var $_plugin;
 
 	/**
 	 * Constructor
-	 * @param $plugin IssueSpotlightPlugin
+	 * @param $plugin \APP\plugins\generic\issueSpotlight\IssueSpotlightPlugin
 	 */
 	public function __construct($plugin) {
 		$this->_plugin = $plugin;
@@ -31,12 +35,12 @@ class IssueSpotlightService {
 	 * @return string
 	 */
 	public function getIssuePayload($issueId) {
-		// In OJS 3.3, we use SubmissionDAO to get articles in an issue
-		$submissionDao = DAORegistry::getDAO('SubmissionDAO');
-		$submissionsFactory = $submissionDao->getByIssueId($issueId);
+		$submissions = Repo::submission()->getCollector()
+			->filterByIssueIds([$issueId])
+			->getMany();
 		
 		$payload = "";
-		while ($submission = $submissionsFactory->next()) {
+		foreach ($submissions as $submission) {
 			$id = $submission->getId();
 			$publication = $submission->getCurrentPublication();
 			

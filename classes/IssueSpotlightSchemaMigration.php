@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file plugins/generic/issueSpotlight/classes/IssueSpotlightSchemaMigration.inc.php
+ * @file plugins/generic/issueSpotlight/classes/IssueSpotlightSchemaMigration.php
  *
  * Copyright (c) 2026 UPC
  * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
@@ -10,9 +10,11 @@
  * @brief Database migration for creating the issue_ai_analysis table.
  */
 
+namespace APP\plugins\generic\issueSpotlight\classes;
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Capsule\Manager as Capsule;
+use Illuminate\Support\Facades\Schema;
 
 class IssueSpotlightSchemaMigration extends Migration {
     /**
@@ -20,8 +22,8 @@ class IssueSpotlightSchemaMigration extends Migration {
      * @return void
      */
     public function up() {
-        if (!Capsule::schema()->hasTable('issue_ai_analysis')) {
-            Capsule::schema()->create('issue_ai_analysis', function (Blueprint $table) {
+        if (!Schema::hasTable('issue_ai_analysis')) {
+            Schema::create('issue_ai_analysis', function (Blueprint $table) {
                 $table->bigInteger('issue_id')->primary();
                 $table->longText('editorial_draft')->nullable();
                 $table->longText('radar_analysis')->nullable();
@@ -37,6 +39,6 @@ class IssueSpotlightSchemaMigration extends Migration {
      * @return void
      */
     public function down() {
-        Capsule::schema()->dropIfExists('issue_ai_analysis');
+        Schema::dropIfExists('issue_ai_analysis');
     }
 }

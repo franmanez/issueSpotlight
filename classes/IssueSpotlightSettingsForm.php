@@ -1,6 +1,6 @@
 <?php
 /**
- * @file plugins/generic/issueSpotlight/classes/IssueSpotlightSettingsForm.inc.php
+ * @file plugins/generic/issueSpotlight/classes/IssueSpotlightSettingsForm.php
  *
  * Copyright (c) 2026 UPC - Universitat Politècnica de Catalunya
  * Author: Fran Máñez <fran.upc@gmail.com>, <francisco.manez@upc.edu>
@@ -12,21 +12,25 @@
  * @brief Settings form for plugin configuration. Manages Google Gemini API key storage and validation.
  */
 
-import('lib.pkp.classes.form.Form');
-import('lib.pkp.classes.form.validation.FormValidator');
-import('lib.pkp.classes.form.validation.FormValidatorPost');
+namespace APP\plugins\generic\issueSpotlight\classes;
+
+use APP\template\TemplateManager;
+use PKP\form\Form;
+use PKP\form\validation\FormValidator;
+use PKP\form\validation\FormValidatorPost;
+use PKP\form\validation\FormValidatorCSRF;
 
 class IssueSpotlightSettingsForm extends Form {
 
 	/** @var int Context ID */
 	public $_contextId;
 
-	/** @var IssueSpotlightPlugin Plugin object */
+	/** @var \APP\plugins\generic\issueSpotlight\IssueSpotlightPlugin Plugin object */
 	public $_plugin;
 
 	/**
 	 * Constructor
-	 * @param $plugin IssueSpotlightPlugin
+	 * @param $plugin \APP\plugins\generic\issueSpotlight\IssueSpotlightPlugin
 	 * @param $contextId int
 	 */
 	public function __construct($plugin, $contextId) {

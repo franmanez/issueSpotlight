@@ -8,5 +8,5 @@
  *
  * @brief Plugin entry point and loader for IssueSpotlight IA.
  */
-require_once('IssueSpotlightPlugin.inc.php');
-return new IssueSpotlightPlugin();
+require_once('IssueSpotlightPlugin.php');
+return new \APP\plugins\generic\issueSpotlight\IssueSpotlightPlugin();

@@ -1,6 +1,6 @@
 <?php
 /**
- * @file plugins/generic/issueSpotlight/pages/IssueSpotlightHandler.inc.php
+ * @file plugins/generic/issueSpotlight/pages/IssueSpotlightHandler.php
  *
  * Copyright (c) 2026 UPC - Universitat Politècnica de Catalunya
  * Author: Fran Máñez <fran.upc@gmail.com>, <francisco.manez@upc.edu>
@@ -13,8 +13,15 @@
  *        interactive visualizations (Innovation Radar, SDG charts, and institutional maps).
  */
 
-import('classes.handler.Handler');
-import('lib.pkp.classes.db.DAO');
+namespace APP\plugins\generic\issueSpotlight\pages;
+
+use APP\core\Application;
+use APP\facades\Repo;
+use APP\handler\Handler;
+use APP\template\TemplateManager;
+use PKP\db\DAO;
+use PKP\db\DAORegistry;
+use PKP\plugins\PluginRegistry;
 
 class IssueSpotlightHandler extends Handler {
 	/**
@@ -37,22 +44,20 @@ class IssueSpotlightHandler extends Handler {
 	/**
 	 * View the AI Analysis page
 	 * @param $args array
-	 * @param $request PKPRequest
+	 * @param $request \PKP\core\PKPRequest
 	 */
 	function view($args, $request) {
 		$issueId = isset($args[0]) ? (int) $args[0] : 0;
 		if (!$issueId) $request->redirect(null, 'index');
 
 		// Validate Issue access (must be published)
-		$issueDao = DAORegistry::getDAO('IssueDAO');
-		$issue = $issueDao->getById($issueId, $request->getContext()->getId());
+		$issue = Repo::issue()->get($issueId);
 		
-		if (!$issue || !$issue->getPublished()) {
+		if (!$issue || !$issue->getPublished() || $issue->getJournalId() != $request->getContext()->getId()) {
 			$request->redirect(null, 'index');
 		}
 
 		// Setup template manually (avoid calling setupTemplate which requires authorized context)
-		AppLocale::requireComponents(LOCALE_COMPONENT_APP_COMMON, LOCALE_COMPONENT_PKP_COMMON, LOCALE_COMPONENT_APP_SUBMISSION);
 		$templateMgr = TemplateManager::getManager($request);
 
 		// Fetch Analysis Data (Single record per issue strategy)
@@ -71,12 +76,12 @@ class IssueSpotlightHandler extends Handler {
 
 		// Fetch Authors and Affiliations for the table
 		$authorsData = [];
-		$submissionsIterator = Services::get('submission')->getMany([
-			'contextId' => $request->getContext()->getId(),
-			'issueIds' => $issueId,
-		]);
+		$submissions = Repo::submission()->getCollector()
+			->filterByContextIds([$request->getContext()->getId()])
+			->filterByIssueIds([$issueId])
+			->getMany();
 		
-		foreach ($submissionsIterator as $submission) {
+		foreach ($submissions as $submission) {
 			$publication = $submission->getCurrentPublication();
 			if ($publication) {
 				$authors = $publication->getData('authors');

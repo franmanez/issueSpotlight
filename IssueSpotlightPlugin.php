@@ -1,6 +1,9 @@
 <?php
+
+namespace APP\plugins\generic\issueSpotlight;
+
 /**
- * @file plugins/generic/issueSpotlight/IssueSpotlightPlugin.inc.php
+ * @file plugins/generic/issueSpotlight/IssueSpotlightPlugin.php
  *
  * Copyright (c) 2026 UPC - Universitat Politècnica de Catalunya
  * Author: Fran Máñez <fran.upc@gmail.com>, <francisco.manez@upc.edu>
@@ -13,12 +16,21 @@
  *        automated editorial synthesis, innovation radar, SDG impact analysis, and institutional mapping.
  */
 
-import('lib.pkp.classes.plugins.GenericPlugin');
-import('lib.pkp.classes.core.JSONMessage');
-import('lib.pkp.classes.db.DAO');
-import('lib.pkp.classes.plugins.HookRegistry');
+use APP\core\Application;
+use APP\template\TemplateManager;
+use APP\plugins\generic\issueSpotlight\classes\IssueSpotlightGridFeature;
+use APP\plugins\generic\issueSpotlight\classes\IssueSpotlightSchemaMigration;
+use APP\plugins\generic\issueSpotlight\classes\IssueSpotlightSettingsForm;
+use PKP\core\JSONMessage;
+use PKP\db\DAO;
+use PKP\linkAction\LinkAction;
+use PKP\linkAction\request\AjaxModal;
+use PKP\plugins\GenericPlugin;
+use PKP\plugins\Hook;
+use Exception;
 
-class IssueSpotlightPlugin extends GenericPlugin {
+class IssueSpotlightPlugin extends GenericPlugin
+{
 
 	/**
 	 * @component IssueSpotlight
@@ -27,32 +39,33 @@ class IssueSpotlightPlugin extends GenericPlugin {
 	/**
 	 * @desc Initialize the plugin
 	 */
-	public function register($category, $path, $mainContextId = null) {
+	public function register($category, $path, $mainContextId = null)
+	{
+
 		if (parent::register($category, $path, $mainContextId)) {
 			if ($this->getEnabled($mainContextId)) {
-				AppLocale::requireComponents(LOCALE_COMPONENT_APP_COMMON, LOCALE_COMPONENT_PKP_COMMON, LOCALE_COMPONENT_APP_EDITOR, LOCALE_COMPONENT_PKP_MANAGER);
-				
-				// Standard OJS 3.3 hooks for grids are lowercase
-				HookRegistry::register('futureissuegridhandler::initfeatures', array($this, 'handleInitFeatures'));
-				HookRegistry::register('backissuegridhandler::initfeatures', array($this, 'handleInitFeatures'));
-				HookRegistry::register('issuegridhandler::initfeatures', array($this, 'handleInitFeatures'));
+
+				// Standard OJS 3.4 hooks
+				Hook::add('futureissuegridhandler::initfeatures', array($this, 'handleInitFeatures'));
+				Hook::add('backissuegridhandler::initfeatures', array($this, 'handleInitFeatures'));
+				Hook::add('issuegridhandler::initfeatures', array($this, 'handleInitFeatures'));
 
 				// Some versions might use CamelCase
-				HookRegistry::register('FutureIssueGridHandler::initFeatures', array($this, 'handleInitFeatures'));
-				HookRegistry::register('BackIssueGridHandler::initFeatures', array($this, 'handleInitFeatures'));
-				HookRegistry::register('IssueGridHandler::initFeatures', array($this, 'handleInitFeatures'));
+				Hook::add('FutureIssueGridHandler::initFeatures', array($this, 'handleInitFeatures'));
+				Hook::add('BackIssueGridHandler::initFeatures', array($this, 'handleInitFeatures'));
+				Hook::add('IssueGridHandler::initFeatures', array($this, 'handleInitFeatures'));
 
 				// Workaround for BackIssueGridHandler which overrides initFeatures without calling parent
-				HookRegistry::register('TemplateManager::fetch', array($this, 'handleTemplateFetch'));
-				
+				Hook::add('TemplateManager::fetch', array($this, 'handleTemplateFetch'));
+
 				// Hook crítico para cargar nuestro controlador personalizado del Backend
-				HookRegistry::register('LoadComponentHandler', array($this, 'handleLoadComponentHandler'));
+				Hook::add('LoadComponentHandler', array($this, 'handleLoadComponentHandler'));
 
 				// Hook para el Frontend (Página pública)
-				HookRegistry::register('LoadHandler', array($this, 'handleLoadHandler'));
-				
+				Hook::add('LoadHandler', array($this, 'handleLoadHandler'));
+
 				// Hook para inyectar botón en la vista del número
-				HookRegistry::register('TemplateManager::display', array($this, 'handleTemplateDisplay'));
+				Hook::add('TemplateManager::display', array($this, 'handleTemplateDisplay'));
 			}
 			return true;
 		}
@@ -62,11 +75,11 @@ class IssueSpotlightPlugin extends GenericPlugin {
 	/**
 	 * @desc Add the spotlight feature to the grid
 	 */
-	public function handleInitFeatures($hookName, $args) {
-		$grid =& $args[0];
-		$returner =& $args[3];
+	public function handleInitFeatures($hookName, $args)
+	{
+		$grid = & $args[0];
+		$returner = & $args[3];
 
-		$this->import('classes.IssueSpotlightGridFeature');
 		$returner[] = new IssueSpotlightGridFeature($this);
 
 		return false;
@@ -75,36 +88,38 @@ class IssueSpotlightPlugin extends GenericPlugin {
 	/**
 	 * @desc Get the display name
 	 */
-	public function getDisplayName() {
+	public function getDisplayName()
+	{
 		return __('plugins.generic.issueSpotlight.displayName');
 	}
 
 	/**
 	 * @desc Get the description
 	 */
-	public function getDescription() {
+	public function getDescription()
+	{
 		return __('plugins.generic.issueSpotlight.description');
 	}
 
 	/**
 	 * @desc Get the actions
 	 */
-	public function getActions($request, $verb) {
+	public function getActions($request, $verb)
+	{
 		$router = $request->getRouter();
-		import('lib.pkp.classes.linkAction.request.AjaxModal');
 
 		return array_merge(
-			$this->getEnabled()?array(
-				new LinkAction(
-					'settings',
-					new AjaxModal(
-						$router->url($request, null, null, 'manage', null, array('verb' => 'settings', 'plugin' => $this->getName(), 'category' => 'generic')),
-						$this->getDisplayName()
-					),
-					__('manager.plugins.settings'),
-					'settings'
-				),
-			):array(),
+			$this->getEnabled() ? array(
+			new LinkAction(
+			'settings',
+			new AjaxModal(
+			$router->url($request, null, null, 'manage', null, array('verb' => 'settings', 'plugin' => $this->getName(), 'category' => 'generic')),
+			$this->getDisplayName()
+		),
+			__('manager.plugins.settings'),
+			'settings'
+		),
+		) : array(),
 			parent::getActions($request, $verb)
 		);
 	}
@@ -112,13 +127,13 @@ class IssueSpotlightPlugin extends GenericPlugin {
 	/**
 	 * @desc Handle manage verbs
 	 */
-	public function manage($args, $request) {
+	public function manage($args, $request)
+	{
 		$context = $request->getContext();
 		$verb = $request->getUserVar('verb');
 
 		switch ($verb) {
 			case 'settings':
-				$this->import('classes.IssueSpotlightSettingsForm');
 				$form = new IssueSpotlightSettingsForm($this, $context->getId());
 				if ($request->getUserVar('save')) {
 					$form->readInputData();
@@ -131,7 +146,7 @@ class IssueSpotlightPlugin extends GenericPlugin {
 				return new JSONMessage(true, $form->fetch($request));
 
 			case 'analysis':
-				$issueId = (int) $request->getUserVar('issueId');
+				$issueId = (int)$request->getUserVar('issueId');
 				$contextId = $request->getContext()->getId();
 				// Devolvemos un HTML simple para que no falle el parseo de la modal
 				return new JSONMessage(true, "<h3>Debug Info</h3><p>Journal ID: $contextId</p><p>Issue ID: $issueId</p><p>Estado: Comunicación funcional</p>");
@@ -145,25 +160,27 @@ class IssueSpotlightPlugin extends GenericPlugin {
 	/**
 	 * @desc Check if this plugin is enabled
 	 */
-	public function getEnabled($contextId = null) {
+	public function getEnabled($contextId = null)
+	{
 		return parent::getEnabled($contextId);
 	}
 
 	/**
 	 * @copydoc Plugin::getInstallMigration()
 	 */
-	public function getInstallMigration() {
-		$this->import('classes.IssueSpotlightSchemaMigration');
+	public function getInstallMigration()
+	{
 		return new IssueSpotlightSchemaMigration();
 	}
 
 	/**
 	 * @desc Handle adding buttons to the issues grid
 	 */
-	public function handleIssueGridActions($hookName, $args) {
+	public function handleIssueGridActions($hookName, $args)
+	{
 		$templateMgr = $args[1];
-		$output = &$args[2];
-		
+		$output = & $args[2];
+
 		// Logic to inject the "Spotlight" button goes here.
 		// For now, we just ensure the hook is active.
 		return false;
@@ -172,11 +189,13 @@ class IssueSpotlightPlugin extends GenericPlugin {
 	/**
 	 * @desc Interceptar carga de componentes para usar nuestro propio Handler
 	 */
-	public function handleLoadComponentHandler($hookName, $args) {
-		$component =& $args[0];
+	public function handleLoadComponentHandler($hookName, $args)
+	{
+		$component = & $args[0];
+		$componentInstance = & $args[2];
+
 		if ($component == 'plugins.generic.issueSpotlight.controllers.grid.IssueSpotlightGridHandler') {
-			// Autorizamos la carga de esta clase específica
-			import($component);
+			$componentInstance = new \APP\plugins\generic\issueSpotlight\controllers\grid\IssueSpotlightGridHandler();
 			return true;
 		}
 		return false;
@@ -185,14 +204,15 @@ class IssueSpotlightPlugin extends GenericPlugin {
 	/**
 	 * @desc Handle Frontend Page Routing
 	 */
-	public function handleLoadHandler($hookName, $args) {
+	public function handleLoadHandler($hookName, $args)
+	{
 		$page = $args[0];
 		$op = $args[1];
-		$sourceFile = $args[2];
+		$handler = & $args[3];
 
 		if ($page === 'issueSpotlight') {
-			$this->import('pages.IssueSpotlightHandler');
-			define('HANDLER_CLASS', 'IssueSpotlightHandler');
+			// Con PSR-4:
+			$handler = new \APP\plugins\generic\issueSpotlight\pages\IssueSpotlightHandler($this);
 			return true;
 		}
 		return false;
@@ -204,7 +224,8 @@ class IssueSpotlightPlugin extends GenericPlugin {
 	/**
 	 * @desc Inject "View AI Analysis" button into Issue TOC using specific hooks
 	 */
-	public function handleTemplateDisplay($hookName, $args) {
+	public function handleTemplateDisplay($hookName, $args)
+	{
 		$templateMgr = $args[0];
 		$template = $args[1];
 
@@ -218,21 +239,25 @@ class IssueSpotlightPlugin extends GenericPlugin {
 	/**
 	 * @desc Filtro de salida seguro para inyectar el botón sin duplicados
 	 */
-	public function safeOutputFilter($output, $smarty) {
+	public function safeOutputFilter($output, $smarty)
+	{
 		static $locked = false;
-		if ($locked) return $output;
+		if ($locked)
+			return $output;
 
 		// Solo procesar si hay rastros del TOC o de la página del número
 		if (strpos($output, 'obj_issue_toc') !== false || strpos($output, 'page_issue') !== false) {
-			$issue = $smarty->get_template_vars('issue');
-			if (!$issue) return $output;
+			$issue = $smarty->getTemplateVars('issue');
+			if (!$issue)
+				return $output;
 
 			// Comprobar si hay análisis
 			$dao = new DAO();
 			try {
 				$result = $dao->retrieve('SELECT count(*) as c FROM issue_ai_analysis WHERE issue_id = ?', [(int)$issue->getId()]);
-				$row = (object) $result->current();
-			} catch (Exception $e) {
+				$row = (object)$result->current();
+			}
+			catch (Exception $e) {
 				// La tabla no existe aún, ignoramos la inyección del botón
 				return $output;
 			}
@@ -240,44 +265,44 @@ class IssueSpotlightPlugin extends GenericPlugin {
 			if ($row && isset($row->c) && $row->c > 0) {
 				$request = Application::get()->getRequest();
 				$url = $request->url(null, 'issueSpotlight', 'view', $issue->getId());
-				
-				$btnHtml = '<div class="issue_spotlight_banner" style="' . 
-							'background: #f0f7fb; ' . 
-							'border: 1px solid #d1e6fa; ' . 
-							'border-left: 5px solid #006798; ' . 
-							'padding: 12px 20px; ' .
-							'margin: 20px 0 40px 0; ' . 
-							'border-radius: 4px; ' .
-							'display: flex; ' .
-							'justify-content: space-between; ' .
-							'align-items: center; ' .
-							'gap: 20px; ' .
-							'">' .
-								'<div style="flex: 1;">' .
-									'<h4 style="margin: 0; color: #006798; font-size: 1.05em; font-weight: 600;">✨ ' . __("plugins.generic.issueSpotlight.banner.title") . '</h4>' .
-								'</div>' .
-								'<a href="' . $url . '" class="pkp_button" style="' . 
-									'background: linear-gradient(135deg, #006798 0%, #111 100%); ' . 
-									'color: white !important; ' . 
-									'border: none; ' . 
-									'padding: 10px 22px; ' . 
-									'border-radius: 3px; ' . 
-									'font-weight: bold; ' . 
-									'text-decoration: none; ' . 
-									'white-space: nowrap; ' .
-									'display: inline-block;' .
-									'transition: all 0.3s ease;' .
-									'font-size: 0.95em;' .
-									'box-shadow: 0 4px 12px rgba(0,0,0,0.25);' .
-								'">🤖 ' . __("plugins.generic.issueSpotlight.banner.btn") . '</a>' .
-						   '</div>';
-				
+
+				$btnHtml = '<div class="issue_spotlight_banner" style="' .
+					'background: #f0f7fb; ' .
+					'border: 1px solid #d1e6fa; ' .
+					'border-left: 5px solid #006798; ' .
+					'padding: 12px 20px; ' .
+					'margin: 20px 0 40px 0; ' .
+					'border-radius: 4px; ' .
+					'display: flex; ' .
+					'justify-content: space-between; ' .
+					'align-items: center; ' .
+					'gap: 20px; ' .
+					'">' .
+					'<div style="flex: 1;">' .
+					'<h4 style="margin: 0; color: #006798; font-size: 1.05em; font-weight: 600;">✨ ' . __("plugins.generic.issueSpotlight.banner.title") . '</h4>' .
+					'</div>' .
+					'<a href="' . $url . '" class="pkp_button" style="' .
+					'background: linear-gradient(135deg, #006798 0%, #111 100%); ' .
+					'color: white !important; ' .
+					'border: none; ' .
+					'padding: 10px 22px; ' .
+					'border-radius: 3px; ' .
+					'font-weight: bold; ' .
+					'text-decoration: none; ' .
+					'white-space: nowrap; ' .
+					'display: inline-block;' .
+					'transition: all 0.3s ease;' .
+					'font-size: 0.95em;' .
+					'box-shadow: 0 4px 12px rgba(0,0,0,0.25);' .
+					'">🤖 ' . __("plugins.generic.issueSpotlight.banner.btn") . '</a>' .
+					'</div>';
+
 				// Estrategia de Inyección Multinivel
 				// 1. Después de la descripción (Ideal)
 				if (strpos($output, 'class="description"') !== false) {
 					$output = preg_replace('/(<div class="description">.*?<\/div>)/s', '$1' . $btnHtml, $output, 1);
 					$locked = true;
-				} 
+				}
 				// 2. Al inicio del heading (Fallback 1)
 				elseif (strpos($output, 'class="heading"') !== false) {
 					$output = preg_replace('/(<div class="heading">)/', '$1' . $btnHtml, $output, 1);
@@ -297,35 +322,38 @@ class IssueSpotlightPlugin extends GenericPlugin {
 	/**
 	 * @desc Workaround to inject actions into grids that don't call the initFeatures hook
 	 */
-	public function handleTemplateFetch($hookName, $args) {
+	public function handleTemplateFetch($hookName, $args)
+	{
 		$templateMgr = $args[0];
 		$template = $args[1];
 
 		if ($template == 'controllers/grid/gridRow.tpl') {
-			$row = $templateMgr->get_template_vars('row');
-			if (is_a($row, 'IssueGridRow')) {
+			$row = $templateMgr->getTemplateVars('row');
+			//if ($row) {
+			// Esto nos dirá qué clase tiene realmente la fila en OJS 3.4
+			//error_log("DEBUG IS: Fila encontrada con clase -> " . get_class($row));
+			//}
+			//if (is_a($row, 'IssueGridRow')) {
+			if ($row instanceof \APP\controllers\grid\issues\IssueGridRow) {
 				$issue = $row->getData();
-				if (is_a($issue, 'Issue')) {
+				if ($issue instanceof \APP\issue\Issue) {
 					$actions = $row->getActions(GRID_ACTION_POSITION_DEFAULT);
 					if (!isset($actions['issueSpotlight'])) {
 						$request = Application::get()->getRequest();
 						$router = $request->getRouter();
-						
-						import('lib.pkp.classes.linkAction.LinkAction');
-						import('lib.pkp.classes.linkAction.request.AjaxModal');
 
 						$row->addAction(
 							new LinkAction(
-								'issueSpotlight',
-								new AjaxModal(
-									$router->url($request, null, 'plugins.generic.issueSpotlight.controllers.grid.IssueSpotlightGridHandler', 'analysis', null, array(
-										'issueId' => $issue->getId()
-									)),
-									__('plugins.generic.issueSpotlight.analysisTitle'), // Título formal de ventana
-									'modal_information'
-								),
-								__('plugins.generic.issueSpotlight.displayName'), // Título oficial del botón (IssueSpotlight IA)
-								'information'
+							'issueSpotlight',
+							new AjaxModal(
+							$router->url($request, null, 'plugins.generic.issueSpotlight.controllers.grid.IssueSpotlightGridHandler', 'analysis', null, array(
+							'issueId' => $issue->getId()
+						)),
+							__('plugins.generic.issueSpotlight.analysisTitle'), // Título formal de ventana
+							'modal_information'
+							),
+							__('plugins.generic.issueSpotlight.displayName'), // Título oficial del botón (IssueSpotlight IA)
+							'information'
 							)
 						);
 					}
@@ -335,4 +363,8 @@ class IssueSpotlightPlugin extends GenericPlugin {
 		return false;
 	}
 
+}
+
+if (!defined('PKP_STRICT_MODE') || !PKP_STRICT_MODE) {
+	class_alias('\APP\plugins\generic\issueSpotlight\IssueSpotlightPlugin', '\IssueSpotlightPlugin');
 }

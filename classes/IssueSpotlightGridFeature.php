@@ -1,6 +1,6 @@
 <?php
 /**
- * @file plugins/generic/issueSpotlight/classes/IssueSpotlightGridFeature.inc.php
+ * @file plugins/generic/issueSpotlight/classes/IssueSpotlightGridFeature.php
  *
  * Copyright (c) 2026 UPC - Universitat Politècnica de Catalunya
  * Author: Fran Máñez <fran.upc@gmail.com>, <francisco.manez@upc.edu>
@@ -12,15 +12,20 @@
  * @brief Grid feature to inject the "IssueSpotlight IA" action button into the backend issue grid.
  */
 
-import('lib.pkp.classes.controllers.grid.feature.GridFeature');
+namespace APP\plugins\generic\issueSpotlight\classes;
+
+use APP\core\Application;
+use PKP\controllers\grid\feature\GridFeature;
+use PKP\linkAction\LinkAction;
+use PKP\linkAction\request\AjaxModal;
 
 class IssueSpotlightGridFeature extends GridFeature {
-	/** @var IssueSpotlightPlugin */
+	/** @var \APP\plugins\generic\issueSpotlight\IssueSpotlightPlugin */
 	var $_plugin;
 
 	/**
 	 * Constructor.
-	 * @param $plugin IssueSpotlightPlugin
+	 * @param $plugin \APP\plugins\generic\issueSpotlight\IssueSpotlightPlugin
 	 */
 	function __construct($plugin) {
 		parent::__construct('issueSpotlight');
@@ -36,10 +41,7 @@ class IssueSpotlightGridFeature extends GridFeature {
 		$request = Application::get()->getRequest();
 		$router = $request->getRouter();
 
-		if (is_a($issue, 'Issue')) {
-			import('lib.pkp.classes.linkAction.LinkAction');
-			import('lib.pkp.classes.linkAction.request.AjaxModal');
-
+		if (is_a($issue, 'OJS\issue\Issue')) {
 			$row->addAction(
 				new LinkAction(
 					'issueSpotlight',

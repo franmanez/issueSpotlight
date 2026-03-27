@@ -309,9 +309,9 @@
 {* Library for curved/animated lines *}
 <script src="https://cdn.jsdelivr.net/npm/leaflet-ant-path@1.3.0/dist/leaflet-ant-path.min.js"></script>
 
-<script src="https://code.highcharts.com/highcharts.js"></script>
-<script src="https://code.highcharts.com/highcharts-more.js"></script>
-<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highcharts@11/highcharts.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/highcharts@11/highcharts-more.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/highcharts@11/modules/accessibility.js" crossorigin="anonymous"></script>
 
 <script>
 	// Base URL for images
