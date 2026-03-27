@@ -1,6 +1,6 @@
-# IssueSpotlight IA para OJS 3.3+
+# IssueSpotlight IA para OJS 3.3
 
-![OJS Compatibility](https://img.shields.io/badge/OJS-3.3%2B-blue.svg) ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg) ![License](https://img.shields.io/badge/License-GPLv3-green.svg) ![Status](https://img.shields.io/badge/Status-Beta-orange.svg)
+![OJS Compatibility](https://img.shields.io/badge/OJS-3.3-blue.svg) ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg) ![License](https://img.shields.io/badge/License-GPLv3-green.svg) ![Status](https://img.shields.io/badge/Status-Beta-orange.svg)
 
 > **[🇺🇸 Read documentation in English](README.md)**
 
@@ -38,7 +38,7 @@ Evalúa la alineación del número con los **Objetivos de Desarrollo Sostenible*
 ## 🛠️ Instalación y Configuración
 
 ### Requisitos Previos
-*   OJS 3.3.0 o superior.
+*   OJS 3.3.x (No compatible con OJS 3.4).
 *   PHP 7.4+ con extensión `cURL` habilitada.
 *   Una **API Key de Google Gemini** (Gratuita).
 
