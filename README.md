@@ -1,6 +1,8 @@
-# IssueSpotlight AI for OJS 3.4+
+# IssueSpotlight AI for OJS 3.3
 
-![OJS Compatibility](https://img.shields.io/badge/OJS-3.4%2B-blue.svg) ![PHP](https://img.shields.io/badge/PHP-8.0%2B-purple.svg) ![License](https://img.shields.io/badge/License-GPLv3-green.svg) ![Status](https://img.shields.io/badge/Status-Beta-orange.svg)
+![OJS Compatibility](https://img.shields.io/badge/OJS-3.3-blue.svg) ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg) ![License](https://img.shields.io/badge/License-GPLv3-green.svg) ![Status](https://img.shields.io/badge/Status-Beta-orange.svg)
+
+**Repo: [github.com/franmanez/issueSpotlight](https://github.com/franmanez/issueSpotlight)**
 
 > **[🇪🇸 Ver documentación en Español](README_es.md)**
 
@@ -38,8 +40,8 @@ Evaluates the issue's alignment with the UN **Sustainable Development Goals**.
 ## 🛠️ Installation & Configuration
 
 ### Prerequisites
-*   OJS 3.4.0 or higher.
-*   PHP 8.0+ with `cURL` extension enabled.
+*   OJS 3.3.x (Not compatible with OJS 3.4).
+*   PHP 7.4+ with `cURL` extension enabled.
 *   A **Google Gemini API Key** (Free Tier available).
 
 ### Step 1: Installation
@@ -107,6 +109,25 @@ The system uses 4 specialized prompts designed to prevent hallucinations and ens
 ## 🔒 Privacy & Data
 *   The plugin sends the following to Google: Titles, Abstracts, and Institution Names (public metadata).
 *   **It does NOT send**: Email addresses, unpublished articles, or peer review data.
+
+---
+
+## 🧪 Testing
+
+The plugin includes functional tests to ensure UI stability across different OJS configurations.
+
+### 1. Cypress (Functional & E2E)
+Located in `cypress/`. These tests simulate real user interactions within the OJS dashboard. 
+To run them locally (requires Cypress and OJS test setup):
+```bash
+npx cypress run --spec "plugins/generic/issueSpotlight/cypress/tests/functional/IssueSpotlightIA.spec.js"
+```
+
+---
+
+## 📜 License
+
+This plugin is licensed under the **GNU General Public License v3.0**. See the `LICENSE` file for more details.
 
 ---
 

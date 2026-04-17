@@ -1,0 +1,35 @@
+<!-- The product should match the directory name of the plugin. -->
+<plugin category="generic" product="issueSpotlight">
+  <name locale="en_US">IssueSpotlight AI</name>
+  <name locale="es_ES">IssueSpotlight IA</name>
+  <homepage>https://github.com/franmanez/issueSpotlight</homepage>
+
+  <!-- Summarize what the plugin does in a short sentence. -->
+  <summary locale="en_US">Generate automated editorial synthesis, innovation radar, and SDG impact analysis for journal issues using Google Gemini AI.</summary>
+  <summary locale="es_ES">Genera síntesis editorial automatizada, radar de innovación y análisis de impacto en ODS para números de revistas usando IA de Google Gemini.</summary>
+
+  <!-- Describe what the plugin does and how someone can expect to use it when they install it. -->
+  <description locale="en_US"><![CDATA[<p>IssueSpotlight AI is a native Open Journal Systems (OJS) plugin that leverages generative artificial intelligence (Google Gemini 2.0/2.5 Flash) to transform static issue metadata into an interactive and visual discovery dashboard.</p><p>Key features include intelligent editorial synthesis, an innovation radar (Packed Bubble Chart), a global institutional map, and SDG impact analysis.</p>]]></description>
+  <description locale="es_ES"><![CDATA[<p>IssueSpotlight IA es un plugin nativo para Open Journal Systems (OJS) que aprovecha la inteligencia artificial generativa (Google Gemini 2.0/2.5 Flash) para transformar metadatos estáticos de los números en un panel de descubrimiento interactivo y visual.</p><p>Las características principales incluyen síntesis editorial inteligente, un radar de innovación (Gráfico de burbujas empaquetadas), un mapa institucional global y un análisis de impacto en los ODS.</p>]]></description>
+
+  <!-- Identify the person and institution maintaining the plugin. -->
+  <maintainer>
+    <name>Fran Máñez</name>
+    <institution>Universitat Politècnica de Catalunya (UPC)</institution>
+    <email>fran.upc@gmail.com</email>
+  </maintainer>
+
+  <release date="2026-02-04" version="1.0.0.0" md5="MD5_SUM_PLACEHOLDER">
+    <package>https://github.com/franmanez/issueSpotlight/releases/download/1.0.0.0/issuespotlight-1.0.0.0.tar.gz</package>
+
+    <compatibility application="ojs2">
+        <version>3.4.X</version>
+        <version>3.5.X</version>
+    </compatibility>
+
+    <certification type="official"/>
+
+    <description>Initial release of IssueSpotlight AI for OJS 3.4/3.5</description>
+    <description locale="es_ES">Lanzamiento inicial de IssueSpotlight IA para OJS 3.4/3.5</description>
+  </release>
+</plugin>
