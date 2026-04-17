@@ -1,2 +1,10 @@
 .DS_Store
 doc/ARTICLE_ENCUENTROS.md
+node_modules/
+vendor/
+composer.lock
+package-lock.json
+.phpunit.result.cache
+*.tar.gz
+cypress/screenshots/
+cypress/videos/
